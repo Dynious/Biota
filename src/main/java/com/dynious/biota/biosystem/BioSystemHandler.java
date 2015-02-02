@@ -4,6 +4,7 @@ import gnu.trove.map.hash.THashMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
 
+import java.util.Iterator;
 import java.util.Map;
 
 public class BioSystemHandler
@@ -21,11 +22,11 @@ public class BioSystemHandler
             if (bioSystemMap.containsKey(chunk))
                 return;
 
-            bioSystem = new BioSystem();
+            bioSystem = new BioSystem(chunk);
         }
         else
         {
-            bioSystem = BioSystem.loadFromNBT(compound);
+            bioSystem = BioSystem.loadFromNBT(chunk, compound);
         }
 
         bioSystemMap.put(chunk, bioSystem);
@@ -41,5 +42,10 @@ public class BioSystemHandler
     public static BioSystem getBioSystem(Chunk chunk)
     {
         return bioSystemMap.get(chunk);
+    }
+
+    public static Iterator<BioSystem> iterator()
+    {
+        return bioSystemMap.values().iterator();
     }
 }

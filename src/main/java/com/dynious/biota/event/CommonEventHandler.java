@@ -4,9 +4,13 @@ import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+
+import java.util.Iterator;
 
 public class CommonEventHandler
 {
@@ -44,5 +48,18 @@ public class CommonEventHandler
         //Chunk unloaded
         if (FMLCommonHandler.instance().getSide().isServer())
             BioSystemHandler.onChunkUnload(event.getChunk());
+    }
+
+    @SubscribeEvent
+    public void tick(TickEvent.ServerTickEvent event)
+    {
+        if (event.phase == TickEvent.Phase.END)
+        {
+            Iterator<BioSystem> iterator = BioSystemHandler.iterator();
+            while (iterator.hasNext())
+            {
+                iterator.next().update();
+            }
+        }
     }
 }
