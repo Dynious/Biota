@@ -1,0 +1,16 @@
+[
+{
+  "modid": "biota",
+  "name": "Biota",
+  "description": "Extending Minecraft with life.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Dynious"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

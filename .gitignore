@@ -1,0 +1,11 @@
+# IntelliJ Project files #
+*.iml
+*.ipr
+*.iws
+
+# Gradle #
+/.gradle/
+/eclipse/
+/run/
+/build/
+/out/
