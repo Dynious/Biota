@@ -43,7 +43,7 @@ dependencies {
 
 jar {
     manifest {
-        attributes("FMLAT": "Biota_at.cfg")
+        attributes("FMLCorePlugin": "com.dynious.biota.asm.LoadingPlugin", "FMLCorePluginContainsFMLMod": "true", "FMLAT": "Biota_at.cfg")
     }
 }
 

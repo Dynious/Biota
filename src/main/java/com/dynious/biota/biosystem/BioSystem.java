@@ -7,15 +7,28 @@ import java.util.Random;
 
 public class BioSystem
 {
-    private static final Random random = new Random();
+    private static final Random RANDOM = new Random();
+
+    private static final int TICKS_PER_UPDATE = 20;
+
+    //168000 ticks per MC week. One week for 1.0 change in spread.
+    private static final float SPREAD_RATE = TICKS_PER_UPDATE/168000;
 
     private final Chunk chunk;
-    private int tick = random.nextInt(20);
+    private int tick = RANDOM.nextInt(20);
+
+    /**
+     * Stores the amount of plants in the chunk. Plant blocks can have different amounts 'plant value'.
+     */
+    private float plants;
 
     /**
      * Phosphorus is used by plants for growth. Plants and animal waste will be turned into phosphates by bacteria when decomposed.
      * Phosphorus is usually the limiting factor in plant growth. It can be released slowly by weathering of rock but
      * can also be incorporated into rock. Bone meal has lots of phosphorus!
+     *
+     * 10 - 20 ppm normal
+     * Normal Carbon:Phosphorus rate = 200:1 - 300:1
      */
     private float phosphorus;
 
@@ -23,6 +36,8 @@ public class BioSystem
      * Potassium is essential for plants and will affect plants greatly when there's not enough available in the soil.
      * Plants will take up more than needed for healthy growth if there's enough available. Works a lot like phosphorus.
      * Bone meal has no potassium. Potassium can be gained by mining rock.
+     *
+     * 150 - 250 ppm K normal.
      */
     private float potassium;
 
@@ -31,6 +46,8 @@ public class BioSystem
      * This ammonia will be turned into nitrate by nitrifying bacteria. Nitrate can be removed from the ground and into
      * the atmosphere by denitrifying bacteria. Ammonia can be inserted in the ground from the atmosphere by nitrogen-fixing
      * soil bacteria.
+     *
+     * 5 - 10 ppm normal. 25+ ppm optimal
      */
     private float nitrogen;
 
@@ -52,7 +69,7 @@ public class BioSystem
     public BioSystem(Chunk chunk)
     {
         //TODO: should depend on the plants already present in the chunk, so we don't get huge amounts of dead chunks
-        this(chunk, random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat());
+        this(chunk, 10 + RANDOM.nextFloat()*10, 150 + RANDOM.nextFloat()*100, 5 + RANDOM.nextFloat()*5, RANDOM.nextFloat(), RANDOM.nextFloat());
     }
 
     private BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen, float decomposingBacteria, float nitrifyingBacteria)
@@ -69,14 +86,17 @@ public class BioSystem
     {
         tick++;
 
-        if (tick % 20 == 0)
+        if (tick % TICKS_PER_UPDATE == 0)
         {
+            //Spread BioSystem stuff to nearby chunks
             spreadToNearbyChunks(chunk.xPosition - 1, chunk.zPosition);
             spreadToNearbyChunks(chunk.xPosition + 1, chunk.zPosition);
             spreadToNearbyChunks(chunk.xPosition, chunk.zPosition - 1);
             spreadToNearbyChunks(chunk.xPosition, chunk.zPosition + 1);
-        }
 
+            //BioSystem calculations
+
+        }
     }
 
     private void spreadToNearbyChunks(int xPos, int yPos)
@@ -98,11 +118,11 @@ public class BioSystem
         float dDB = this.decomposingBacteria - bioSystem.decomposingBacteria;
         float dNB = this.nitrifyingBacteria - bioSystem.nitrifyingBacteria;
 
-        float spreadP = (float) (Math.ceil(dP)*6*Math.pow(dP/10, 2));
-        float spreadK = (float) (Math.ceil(dK)*6*Math.pow(dK/10, 2));
-        float spreadN = (float) (Math.ceil(dN)*6*Math.pow(dN/10, 2));
-        float spreadDB = (float) (Math.ceil(dDB)*6*Math.pow(dDB/10, 2));
-        float spreadNB = (float) (Math.ceil(dNB)*6*Math.pow(dNB/10, 2));
+        float spreadP = SPREAD_RATE*dP;
+        float spreadK = SPREAD_RATE*dK;
+        float spreadN = SPREAD_RATE*dN;
+        float spreadDB = SPREAD_RATE*dDB;
+        float spreadNB = SPREAD_RATE*dNB;
 
         if (chunk.xPosition == 0 && chunk.zPosition == 0)
             System.out.println("P = " + phosphorus + " dP = " + dP + " Spread = " + spreadP);
