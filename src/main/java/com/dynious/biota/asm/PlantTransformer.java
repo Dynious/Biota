@@ -1,11 +1,11 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.config.PlantConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-
-import java.util.Arrays;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -20,31 +20,7 @@ public class PlantTransformer implements ITransformer
     @Override
     public String[] getClasses()
     {
-        return new String[]
-                {
-                        "net.minecraft.block.BlockGrass",
-                        "net.minecraft.block.BlockSapling",
-                        "net.minecraft.block.BlockOldLog",
-                        "net.minecraft.block.BlockOldLeaf",
-                        "net.minecraft.block.BlockTallGrass",
-                        "net.minecraft.block.BlockFlower",
-                        "net.minecraft.block.BlockMushroom",
-                        "net.minecraft.block.BlockCrops",
-                        "net.minecraft.block.BlockCactus",
-                        "net.minecraft.block.BlockPumpkin",
-                        "net.minecraft.block.BlockHugeMushroom",
-                        "net.minecraft.block.BlockMelon",
-                        "net.minecraft.block.BlockStem",
-                        "net.minecraft.block.BlockVine",
-                        "net.minecraft.block.BlockMycelium",
-                        "net.minecraft.block.BlockLilyPad",
-                        "net.minecraft.block.BlockNetherWart",
-                        "net.minecraft.block.BlockCocoa",
-                        "net.minecraft.block.BlockPotato",
-                        "net.minecraft.block.BlockNewLeaf",
-                        "net.minecraft.block.BlockNewLog",
-                        "net.minecraft.block.BlockDoublePlant"
-                };
+        return PlantConfig.INSTANCE.getPlantClassNames();
     }
 
     @Override
@@ -63,45 +39,86 @@ public class PlantTransformer implements ITransformer
             if (methodNode.name.equals(ADDED) && methodNode.desc.equals(ADDED_DESC))
             {
                 foundAdded = true;
-                System.out.println("Transforming onBlockAdded");
 
                 InsnList list = new InsnList();
 
-                list.add(new VarInsnNode(AALOAD, 0));
-                list.add(new VarInsnNode(AALOAD, 1));
+                list.add(new VarInsnNode(ALOAD, 0));
+                list.add(new VarInsnNode(ALOAD, 1));
                 list.add(new VarInsnNode(ILOAD, 2));
                 list.add(new VarInsnNode(ILOAD, 3));
                 list.add(new VarInsnNode(ILOAD, 4));
                 list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockAdded", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
 
-                methodNode.instructions.insert(methodNode.instructions.getFirst(), list);
-                System.out.println(Arrays.toString(methodNode.instructions.toArray()));
+                methodNode.instructions.insert(list);
             }
             else if (methodNode.name.equals(REMOVED) && methodNode.desc.equals(REMOVED_DESC))
             {
                 foundRemoved = true;
-                System.out.println("Transforming breakBlock");
 
                 InsnList list = new InsnList();
 
-                list.add(new VarInsnNode(AALOAD, 0));
-                list.add(new VarInsnNode(AALOAD, 1));
+                list.add(new VarInsnNode(ALOAD, 0));
+                list.add(new VarInsnNode(ALOAD, 1));
                 list.add(new VarInsnNode(ILOAD, 2));
                 list.add(new VarInsnNode(ILOAD, 3));
                 list.add(new VarInsnNode(ILOAD, 4));
                 list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
 
-                methodNode.instructions.insert(methodNode.instructions.getFirst(), list);
+                methodNode.instructions.insert(list);
             }
         }
 
         if (!foundAdded)
         {
-            //Override, call super and our method
+            //Override added method
+            MethodVisitor mv = classNode.visitMethod(ACC_PUBLIC, ADDED, ADDED_DESC, null, null);
+
+            //Call our method
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockAdded", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false);
+
+            //Call super
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitMethodInsn(INVOKESPECIAL, classNode.superName, ADDED, ADDED_DESC, false);
+
+            //Return
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
         }
         if (!foundRemoved)
         {
-            //Override, call super and our method
+            //Override removed method
+            MethodVisitor mv = classNode.visitMethod(ACC_PUBLIC, REMOVED, REMOVED_DESC, null, null);
+
+            //Call our method
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false);
+
+            //Call super
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitVarInsn(ALOAD, 5);
+            mv.visitVarInsn(ILOAD, 6);
+            mv.visitMethodInsn(INVOKESPECIAL, classNode.superName, REMOVED, REMOVED_DESC, false);
+
+            //Return
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
         }
 
         ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);

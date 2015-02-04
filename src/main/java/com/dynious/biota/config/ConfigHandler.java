@@ -21,7 +21,6 @@ public class ConfigHandler
     public static void syncConfig()
     {
 
-
         if (configFile.hasChanged())
             configFile.save();
     }

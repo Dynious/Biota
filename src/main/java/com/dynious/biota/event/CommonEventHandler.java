@@ -2,10 +2,8 @@ package com.dynious.biota.event;
 
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.relauncher.Side;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -18,15 +16,17 @@ public class CommonEventHandler
     public void onChuckDataLoad(ChunkDataEvent.Load event)
     {
         //Chunk read from disk
-        BioSystemHandler.onChunkLoaded(event.getChunk(), (NBTTagCompound) event.getData().getTag("Biota"));
+        NBTTagCompound compound = event.getData().getCompoundTag("Biota");
+        BioSystemHandler.onChunkLoaded(event.getChunk(), compound);
     }
 
     @SubscribeEvent
     public void onChuckLoad(ChunkEvent.Load event)
     {
-        //Chunk created or read from disk
-        if (FMLCommonHandler.instance().getSide().isServer())
+        if (!event.getChunk().worldObj.isRemote)
+        {
             BioSystemHandler.onChunkLoaded(event.getChunk(), null);
+        }
     }
 
     @SubscribeEvent
@@ -40,13 +40,7 @@ public class CommonEventHandler
             bioSystem.saveToNBT(compound);
             event.getData().setTag("Biota", compound);
         }
-    }
-
-    @SubscribeEvent
-    public void onChuckUnload(ChunkEvent.Unload event)
-    {
-        //Chunk unloaded
-        if (FMLCommonHandler.instance().getSide().isServer())
+        if (!event.getChunk().isChunkLoaded)
             BioSystemHandler.onChunkUnload(event.getChunk());
     }
 
@@ -55,6 +49,7 @@ public class CommonEventHandler
     {
         if (event.phase == TickEvent.Phase.END)
         {
+            BioSystemHandler.update();
             Iterator<BioSystem> iterator = BioSystemHandler.iterator();
             while (iterator.hasNext())
             {
@@ -62,6 +57,4 @@ public class CommonEventHandler
             }
         }
     }
-
-
 }

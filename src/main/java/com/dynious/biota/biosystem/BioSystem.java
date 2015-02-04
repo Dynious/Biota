@@ -20,7 +20,7 @@ public class BioSystem
     /**
      * Stores the amount of plants in the chunk. Plant blocks can have different amounts 'plant value'.
      */
-    private float plants;
+    private float biomass;
 
     /**
      * Phosphorus is used by plants for growth. Plants and animal waste will be turned into phosphates by bacteria when decomposed.
@@ -68,18 +68,31 @@ public class BioSystem
 
     public BioSystem(Chunk chunk)
     {
-        //TODO: should depend on the plants already present in the chunk, so we don't get huge amounts of dead chunks
-        this(chunk, 10 + RANDOM.nextFloat()*10, 150 + RANDOM.nextFloat()*100, 5 + RANDOM.nextFloat()*5, RANDOM.nextFloat(), RANDOM.nextFloat());
+        this(chunk, 10 + RANDOM.nextFloat()*10, 150 + RANDOM.nextFloat()*100, 5 + RANDOM.nextFloat()*5);
     }
 
-    private BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen, float decomposingBacteria, float nitrifyingBacteria)
+    private BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
     {
         this.chunk = chunk;
         this.phosphorus = phosphorus;
         this.potassium = potassium;
         this.nitrogen = nitrogen;
-        this.decomposingBacteria = decomposingBacteria;
-        this.nitrifyingBacteria = nitrifyingBacteria;
+        decomposingBacteria = -1F;
+        nitrifyingBacteria = -1F;
+    }
+
+    public void addBiomass(float amount)
+    {
+        chunk.isModified = true;
+        this.biomass += amount;
+    }
+
+    public void setStableBacteriaValues()
+    {
+        if (decomposingBacteria == -1F)
+        {
+            //TODO: what bacteria:biomass rate is stable?
+        }
     }
 
     public void update()
@@ -88,6 +101,7 @@ public class BioSystem
 
         if (tick % TICKS_PER_UPDATE == 0)
         {
+            chunk.isModified = true;
             //Spread BioSystem stuff to nearby chunks
             spreadToNearbyChunks(chunk.xPosition - 1, chunk.zPosition);
             spreadToNearbyChunks(chunk.xPosition + 1, chunk.zPosition);
@@ -124,8 +138,8 @@ public class BioSystem
         float spreadDB = SPREAD_RATE*dDB;
         float spreadNB = SPREAD_RATE*dNB;
 
-        if (chunk.xPosition == 0 && chunk.zPosition == 0)
-            System.out.println("P = " + phosphorus + " dP = " + dP + " Spread = " + spreadP);
+        //if (chunk.xPosition == 0 && chunk.zPosition == 0)
+        //    System.out.println("P = " + phosphorus + " dP = " + dP + " Spread = " + spreadP);
 
         this.phosphorus -= spreadP;
         bioSystem.phosphorus += spreadP;
@@ -147,7 +161,14 @@ public class BioSystem
         float nitrogen = compound.getFloat("nitrogen");
         float decomposingBacteria = compound.getFloat("decomposingBacteria");
         float nitrifyingBacteria = compound.getFloat("nitrifyingBacteria");
-        return new BioSystem(chunk, phosphorus, potassium, nitrogen, decomposingBacteria, nitrifyingBacteria);
+        float biomass = compound.getFloat("biomass");
+
+        BioSystem bioSystem = new BioSystem(chunk, phosphorus, potassium, nitrogen);
+        bioSystem.decomposingBacteria = decomposingBacteria;
+        bioSystem.nitrifyingBacteria = nitrifyingBacteria;
+        bioSystem.biomass = biomass;
+
+        return bioSystem;
     }
 
     public void saveToNBT(NBTTagCompound compound)
@@ -157,6 +178,7 @@ public class BioSystem
         compound.setFloat("nitrogen", nitrogen);
         compound.setFloat("decomposingBacteria", decomposingBacteria);
         compound.setFloat("nitrifyingBacteria", nitrifyingBacteria);
+        compound.setFloat("biomass", biomass);
     }
 
     @Override
