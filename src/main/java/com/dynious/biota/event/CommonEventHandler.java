@@ -8,8 +8,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 
-import java.util.Iterator;
-
 public class CommonEventHandler
 {
     @SubscribeEvent
@@ -50,11 +48,6 @@ public class CommonEventHandler
         if (event.phase == TickEvent.Phase.END)
         {
             BioSystemHandler.update();
-            Iterator<BioSystem> iterator = BioSystemHandler.iterator();
-            while (iterator.hasNext())
-            {
-                iterator.next().update();
-            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.biosystem.IPlant;
 import com.dynious.biota.config.PlantConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -30,6 +31,9 @@ public class PlantTransformer implements ITransformer
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(clazz);
         classReader.accept(classNode, 0);
+
+        //Add IPlant interface for easy plant checking
+        classNode.interfaces.add(Type.getInternalName(IPlant.class));
 
         boolean foundAdded = false;
         boolean foundRemoved = false;

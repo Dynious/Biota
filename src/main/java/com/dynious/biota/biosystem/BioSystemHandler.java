@@ -16,6 +16,9 @@ public class BioSystemHandler
     private static Map<Chunk, BioSystem> bioSystemMap = new THashMap<Chunk, BioSystem>();
     public static TObjectFloatMap<ChunkCoords> changeMap = new TObjectFloatHashMap<ChunkCoords>();
 
+    private static final boolean DEBUG = false;
+    public static boolean[][] list = new boolean[80][80];
+
     public static void onChunkLoaded(Chunk chunk, NBTTagCompound compound)
     {
         assert chunk != null;
@@ -35,8 +38,6 @@ public class BioSystemHandler
         }
 
         bioSystemMap.put(chunk, bioSystem);
-        if (chunk.xPosition == 0 && chunk.zPosition == 0)
-            System.out.println(bioSystem.toString());
     }
 
     public static void onChunkUnload(Chunk chunk)
@@ -58,6 +59,30 @@ public class BioSystemHandler
     {
         changeMap.forEachEntry(ChunkCoordsProcedure.INSTANCE);
         changeMap.clear();
+
+        Iterator<BioSystem> iterator = BioSystemHandler.iterator();
+        while (iterator.hasNext())
+        {
+            iterator.next().update();
+        }
+
+        if (DEBUG)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < list.length; i++)
+            {
+                stringBuilder.append('\n');
+                boolean[] booleans = list[i];
+                for (int j = 0; j < booleans.length; j++)
+                {
+                    if (booleans[j])
+                        stringBuilder.append("x ");
+                    else
+                        stringBuilder.append("o ");
+                }
+            }
+            System.out.println(stringBuilder.toString());
+        }
     }
 
     public static class ChunkCoords
@@ -99,6 +124,7 @@ public class BioSystemHandler
 
     private static class ChunkCoordsProcedure implements TObjectFloatProcedure<ChunkCoords>
     {
+
         public static final ChunkCoordsProcedure INSTANCE = new ChunkCoordsProcedure();
 
         private ChunkCoordsProcedure()
@@ -112,7 +138,13 @@ public class BioSystemHandler
             BioSystem bioSystem = getBioSystem(chunk);
             if (bioSystem != null)
             {
-                System.out.println("AMOUNT: " + amount);
+                if (DEBUG)
+                {
+                    if (amount > 1)
+                    {
+                        list[chunk.xPosition + 40][chunk.zPosition + 40] = true;
+                    }
+                }
                 bioSystem.addBiomass(amount);
             }
             else
