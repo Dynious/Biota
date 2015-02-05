@@ -2,11 +2,15 @@ package com.dynious.biota.event;
 
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
+import com.dynious.biota.network.NetworkHandler;
+import com.dynious.biota.network.message.MessageBioSystemUpdate;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.ChunkWatchEvent;
 
 public class CommonEventHandler
 {
@@ -48,6 +52,17 @@ public class CommonEventHandler
         if (event.phase == TickEvent.Phase.END)
         {
             BioSystemHandler.update();
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayWatchChunk(ChunkWatchEvent.Watch event)
+    {
+        Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        if (bioSystem != null)
+        {
+            NetworkHandler.INSTANCE.sendTo(new MessageBioSystemUpdate(bioSystem), event.player);
         }
     }
 }

@@ -8,6 +8,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.Iterator;
+
 import static org.objectweb.asm.Opcodes.*;
 
 public class PlantTransformer implements ITransformer
@@ -17,6 +19,9 @@ public class PlantTransformer implements ITransformer
 
     private final static String REMOVED = CoreTransformer.isObfurscated() ? "a" : "breakBlock";
     private final static String REMOVED_DESC = CoreTransformer.isObfurscated() ? "(Lahb;IIILaji;I)V" : "(Lnet/minecraft/world/World;IIILnet/minecraft/block/Block;I)V";
+
+    private final static String COLOR = CoreTransformer.isObfurscated() ? "d" : "colorMultiplier";
+    private final static String COLOR_DESC = CoreTransformer.isObfurscated() ? "(Lahl;III)I" : "(Lnet/minecraft/world/IBlockAccess;III)I";
 
     @Override
     public String[] getClasses()
@@ -37,6 +42,7 @@ public class PlantTransformer implements ITransformer
 
         boolean foundAdded = false;
         boolean foundRemoved = false;
+        boolean foundColor = false;
 
         for (MethodNode methodNode : classNode.methods)
         {
@@ -69,6 +75,25 @@ public class PlantTransformer implements ITransformer
                 list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
 
                 methodNode.instructions.insert(list);
+            }
+            else if (methodNode.name.equals(COLOR) && methodNode.desc.equals(COLOR_DESC))
+            {
+                foundColor = true;
+                Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator();
+                while(iterator.hasNext())
+                {
+                    AbstractInsnNode node = iterator.next();
+                    if (node.getOpcode() == IRETURN)
+                    {
+                        InsnList list = new InsnList();
+
+                        list.add(new VarInsnNode(ILOAD, 2));
+                        list.add(new VarInsnNode(ILOAD, 4));
+                        list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "getColor", "(III)I", false));
+
+                        methodNode.instructions.insertBefore(node, list);
+                    }
+                }
             }
         }
 
@@ -122,6 +147,27 @@ public class PlantTransformer implements ITransformer
 
             //Return
             mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
+        }
+        if (!foundColor)
+        {
+            MethodVisitor mv = classNode.visitMethod(ACC_PUBLIC, COLOR, COLOR_DESC, null, null);
+
+            //Call super and get color int
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitMethodInsn(INVOKESPECIAL, classNode.superName, COLOR, COLOR_DESC, false);
+
+            //Call our color change method
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "getColor",  "(III)I", false);
+
+            //Return altered color
+            mv.visitInsn(IRETURN);
             mv.visitMaxs(0, 0);
         }
 

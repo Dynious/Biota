@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlantConfig
@@ -17,6 +18,7 @@ public class PlantConfig
     public static final PlantConfig INSTANCE;
 
     private PlantConfigPart[] plants;
+    private boolean initialized = false;
 
     static
     {
@@ -99,10 +101,27 @@ public class PlantConfig
 
     public float getPlantBlockBiomassValue(Block block)
     {
-        String name = block.getClass().getName();
+        if (!initialized)
+        {
+            List<PlantConfigPart> plantsNotFound = new ArrayList<PlantConfigPart>();
+            for (PlantConfigPart plantConfigPart : plants)
+            {
+                try
+                {
+                    plantConfigPart.clazz = Class.forName(plantConfigPart.plantClassName);
+                } catch (ClassNotFoundException e)
+                {
+                    plantsNotFound.add(plantConfigPart);
+                }
+            }
+            List<PlantConfigPart> list = Arrays.asList(plants);
+            list.removeAll(plantsNotFound);
+            plants = list.toArray(new PlantConfigPart[list.size()]);
+            initialized = true;
+        }
         for (PlantConfigPart plantConfigPart : plants)
         {
-            if (name.equals(plantConfigPart.plantClassName))
+            if (plantConfigPart.clazz.isInstance(block))
             {
                 return plantConfigPart.plantBiomassValue;
             }
@@ -114,6 +133,7 @@ public class PlantConfig
     {
         private String plantClassName;
         private float plantBiomassValue;
+        public Class clazz;
 
         private PlantConfigPart(String plantClassName, float plantBiomassValue)
         {

@@ -1,5 +1,6 @@
 package com.dynious.biota.biosystem;
 
+import com.dynious.biota.lib.Settings;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
 
@@ -11,11 +12,12 @@ public class BioSystem
 
     private static final int TICKS_PER_UPDATE = 20;
 
+    //TODO: Add the zeros again, when testing is done
     //168000 ticks per MC week. One week for 1.0 change in spread.
-    private static final float SPREAD_RATE = TICKS_PER_UPDATE/168000;
+    private static final float SPREAD_RATE = TICKS_PER_UPDATE/1680;
 
     //24000 ticks per MC day. One day for 1.0 change.
-    private static final float CHANGE_RATE = TICKS_PER_UPDATE/24000;
+    private static final float CHANGE_RATE = TICKS_PER_UPDATE/240;
 
     public final Chunk chunk;
     private int tick = RANDOM.nextInt(20);
@@ -71,7 +73,7 @@ public class BioSystem
 
     public BioSystem(Chunk chunk)
     {
-        this(chunk, 10 + RANDOM.nextFloat()*10, 150 + RANDOM.nextFloat()*100, 5 + RANDOM.nextFloat()*5);
+        this(chunk, Settings.NORMAL_PHOSPHORUS + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_PHOSPHORUS, Settings.NORMAL_POTASSIUM + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_POTASSIUM, Settings.NORMAL_NITROGEN + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_NITROGEN);
     }
 
     private BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
@@ -105,6 +107,36 @@ public class BioSystem
         chunk.isModified = true;
         biomass = amount;
         setStableBacteriaValues();
+    }
+
+    public float getPhosphorus()
+    {
+        return phosphorus;
+    }
+
+    public float getPotassium()
+    {
+        return potassium;
+    }
+
+    public float getNitrogen()
+    {
+        return nitrogen;
+    }
+
+    public void setPhosphorus(float phosphorus)
+    {
+        this.phosphorus = phosphorus;
+    }
+
+    public void setPotassium(float potassium)
+    {
+        this.potassium = potassium;
+    }
+
+    public void setNitrogen(float nitrogen)
+    {
+        this.nitrogen = nitrogen;
     }
 
     public void setStableBacteriaValues()
