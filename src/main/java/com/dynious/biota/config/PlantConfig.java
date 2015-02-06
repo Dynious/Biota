@@ -22,6 +22,7 @@ public class PlantConfig
 
     static
     {
+        //TODO: different biomass values for different metadata values
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         File file = new File(Launch.minecraftHome, "config" + File.separator + Reference.MOD_ID.toLowerCase() + File.separator + "plants.cfg");
@@ -66,18 +67,17 @@ public class PlantConfig
         list.add(new PlantConfigPart("net.minecraft.block.BlockTallGrass", 0.8F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockFlower", 0.5F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockMushroom", 0.3F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockCrops", 0.8F));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockCrops", new float[] { 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F }));
         list.add(new PlantConfigPart("net.minecraft.block.BlockCactus", 0.6F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockPumpkin", 0.9F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockHugeMushroom", 0.5F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockMelon", 0.9F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockStem", 0.3F));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockStem", new float[] { 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F }));
         list.add(new PlantConfigPart("net.minecraft.block.BlockVine", 0.2F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockMycelium", 0.1F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockLilyPad", 0.2F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockNetherWart", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockCocoa", 0.6F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockPotato", 0.8F));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockCocoa", new float[] { 0.4F, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, 0.5F, 0.5F, 0.6F, 0.6F, 0.6F, 0.6F}));
         list.add(new PlantConfigPart("net.minecraft.block.BlockNewLeaf", 1.0F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockNewLog", 0.5F));
         list.add(new PlantConfigPart("net.minecraft.block.BlockDoublePlant", 0.6F));
@@ -99,7 +99,7 @@ public class PlantConfig
         return strings;
     }
 
-    public float getPlantBlockBiomassValue(Block block)
+    public float getPlantBlockBiomassValue(Block block, int meta)
     {
         if (!initialized)
         {
@@ -123,6 +123,10 @@ public class PlantConfig
         {
             if (plantConfigPart.clazz.isInstance(block))
             {
+                if (meta >= 0 && plantConfigPart.plantBiomassValues != null && meta < plantConfigPart.plantBiomassValues.length)
+                {
+                    return plantConfigPart.plantBiomassValues[meta];
+                }
                 return plantConfigPart.plantBiomassValue;
             }
         }
@@ -133,12 +137,19 @@ public class PlantConfig
     {
         private String plantClassName;
         private float plantBiomassValue;
+        private float[] plantBiomassValues;
         public Class clazz;
 
         private PlantConfigPart(String plantClassName, float plantBiomassValue)
         {
             this.plantClassName = plantClassName;
             this.plantBiomassValue = plantBiomassValue;
+        }
+
+        private PlantConfigPart(String plantClassName, float[] plantBiomassValues)
+        {
+            this.plantClassName = plantClassName;
+            this.plantBiomassValues = plantBiomassValues;
         }
     }
 }

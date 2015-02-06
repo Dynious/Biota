@@ -2,6 +2,7 @@ package com.dynious.biota.biosystem;
 
 import com.dynious.biota.config.PlantConfig;
 import net.minecraft.block.Block;
+import net.minecraft.world.chunk.Chunk;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,6 @@ public class BioSystemInitThread extends Thread
     public static final BioSystemInitThread INSTANCE = new BioSystemInitThread();
 
     private List<BioSystem> toDo = new ArrayList<BioSystem>();
-    private boolean run = true;
 
     private BioSystemInitThread()
     {
@@ -22,41 +22,49 @@ public class BioSystemInitThread extends Thread
     @Override
     public void run()
     {
-        while(run)
+        while(true)
         {
             if (!toDo.isEmpty())
             {
                 float biomass = 0F;
                 BioSystem bioSystem = toDo.get(0);
 
-                for (int x = 0; x < 16; x++)
+                Chunk chunk = bioSystem.chunkReference.get();
+
+                if (chunk != null)
                 {
-                    for (int y = 0; y < 256; y++)
+                    for (int x = 0; x < 16; x++)
                     {
-                        for (int z = 0; z < 16; z++)
+                        for (int y = 0; y < 256; y++)
                         {
-                            Block block = bioSystem.chunk.getBlock(x, y, z);
-                            if (block instanceof IPlant)
+                            for (int z = 0; z < 16; z++)
                             {
-                                biomass += PlantConfig.INSTANCE.getPlantBlockBiomassValue(block);
+                                Block block = chunk.getBlock(x, y, z);
+                                if (block instanceof IPlant)
+                                {
+                                    int meta = chunk.getBlockMetadata(x, y, z);
+                                    biomass += PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, meta);
+                                }
                             }
                         }
                     }
-                }
-                bioSystem.setBiomass(biomass);
+                    bioSystem.setBiomass(biomass);
 
-                toDo.remove(bioSystem);
+
+                    toDo.remove(bioSystem);
+                }
             }
             else
             {
-                try
-                {
-                    join(1000);
-                } catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                break;
             }
+        }
+        try
+        {
+            join(1000);
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
         }
     }
 

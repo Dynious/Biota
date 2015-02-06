@@ -2,10 +2,7 @@ package com.dynious.biota.asm;
 
 import com.dynious.biota.biosystem.IPlant;
 import com.dynious.biota.config.PlantConfig;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 import java.util.Iterator;
@@ -22,6 +19,9 @@ public class PlantTransformer implements ITransformer
 
     private final static String COLOR = CoreTransformer.isObfurscated() ? "d" : "colorMultiplier";
     private final static String COLOR_DESC = CoreTransformer.isObfurscated() ? "(Lahl;III)I" : "(Lnet/minecraft/world/IBlockAccess;III)I";
+
+    private final static String TICK = CoreTransformer.isObfurscated() ? "a" : "updateTick";
+    private final static String TICK_DESC = CoreTransformer.isObfurscated() ? "(Lahb;IIILjava/util/Random;)V" : "(Lnet/minecraft/world/World;IIILjava/util/Random;)V";
 
     @Override
     public String[] getClasses()
@@ -43,6 +43,7 @@ public class PlantTransformer implements ITransformer
         boolean foundAdded = false;
         boolean foundRemoved = false;
         boolean foundColor = false;
+        boolean foundTick = false;
 
         for (MethodNode methodNode : classNode.methods)
         {
@@ -94,6 +95,35 @@ public class PlantTransformer implements ITransformer
                         methodNode.instructions.insertBefore(node, list);
                     }
                 }
+            }
+            else if (methodNode.name.equals(TICK) && methodNode.desc.equals(TICK_DESC))
+            {
+                foundTick = true;
+
+                InsnList list = new InsnList();
+                LabelNode labelNode = new LabelNode();
+
+                list.add(new VarInsnNode(ALOAD, 0));
+                list.add(new VarInsnNode(ALOAD, 1));
+                list.add(new VarInsnNode(ILOAD, 2));
+                list.add(new VarInsnNode(ILOAD, 3));
+                list.add(new VarInsnNode(ILOAD, 4));
+                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)Z" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)Z", false));
+                list.add(new JumpInsnNode(IFNE, labelNode));
+
+                methodNode.instructions.insert(list);
+
+                Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator();
+                while(iterator.hasNext())
+                {
+                    AbstractInsnNode node = iterator.next();
+                    if (node.getOpcode() == RETURN)
+                    {
+                        methodNode.instructions.insertBefore(node, labelNode);
+                        break;
+                    }
+                }
+
             }
         }
 
@@ -169,6 +199,33 @@ public class PlantTransformer implements ITransformer
             //Return altered color
             mv.visitInsn(IRETURN);
             mv.visitMaxs(0, 0);
+        }
+        if (!foundTick)
+        {
+            MethodVisitor mv = classNode.visitMethod(ACC_PUBLIC, TICK, TICK_DESC, null, null);
+
+            Label label = new Label();
+
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)Z" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)Z", false);
+            mv.visitJumpInsn(IFNE, label);
+
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ILOAD, 2);
+            mv.visitVarInsn(ILOAD, 3);
+            mv.visitVarInsn(ILOAD, 4);
+            mv.visitVarInsn(ALOAD, 5);
+            mv.visitMethodInsn(INVOKESPECIAL, classNode.superName, TICK, TICK_DESC, false);
+
+            mv.visitLabel(label);
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
+
         }
 
         ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);

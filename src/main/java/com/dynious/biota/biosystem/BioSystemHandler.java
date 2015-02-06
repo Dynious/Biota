@@ -1,7 +1,6 @@
 package com.dynious.biota.biosystem;
 
 import gnu.trove.map.TObjectFloatMap;
-import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TObjectFloatHashMap;
 import gnu.trove.procedure.TObjectFloatProcedure;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,14 +9,13 @@ import net.minecraft.world.chunk.Chunk;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class BioSystemHandler
 {
-    private static Map<Chunk, BioSystem> bioSystemMap = new THashMap<Chunk, BioSystem>();
+    //TODO: Check if weak hashmap actually works properly
+    private static Map<Chunk, BioSystem> bioSystemMap = new WeakHashMap<Chunk, BioSystem>();
     public static TObjectFloatMap<ChunkCoords> changeMap = new TObjectFloatHashMap<ChunkCoords>();
-
-    private static final boolean DEBUG = false;
-    public static boolean[][] list = new boolean[80][80];
 
     public static void onChunkLoaded(Chunk chunk, NBTTagCompound compound)
     {
@@ -57,6 +55,7 @@ public class BioSystemHandler
 
     public static void update()
     {
+        //long time = System.nanoTime();
         changeMap.forEachEntry(ChunkCoordsProcedure.INSTANCE);
         changeMap.clear();
 
@@ -65,24 +64,7 @@ public class BioSystemHandler
         {
             iterator.next().update();
         }
-
-        if (DEBUG)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < list.length; i++)
-            {
-                stringBuilder.append('\n');
-                boolean[] booleans = list[i];
-                for (int j = 0; j < booleans.length; j++)
-                {
-                    if (booleans[j])
-                        stringBuilder.append("x ");
-                    else
-                        stringBuilder.append("o ");
-                }
-            }
-            System.out.println(stringBuilder.toString());
-        }
+        //System.out.println((float)(System.nanoTime() - time) / 1000000);
     }
 
     public static class ChunkCoords
@@ -138,13 +120,6 @@ public class BioSystemHandler
             BioSystem bioSystem = getBioSystem(chunk);
             if (bioSystem != null)
             {
-                if (DEBUG)
-                {
-                    if (amount > 1)
-                    {
-                        list[chunk.xPosition + 40][chunk.zPosition + 40] = true;
-                    }
-                }
                 bioSystem.addBiomass(amount);
             }
             else

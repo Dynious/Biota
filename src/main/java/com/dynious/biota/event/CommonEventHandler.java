@@ -55,6 +55,7 @@ public class CommonEventHandler
         }
     }
 
+    //TODO: Check if loading & unloading works so no memory leaks will happen
     @SubscribeEvent
     public void onPlayWatchChunk(ChunkWatchEvent.Watch event)
     {

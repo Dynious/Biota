@@ -1,14 +1,14 @@
 package com.dynious.biota.event;
 
+import com.dynious.biota.biosystem.ClientBioSystemHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.event.terraingen.BiomeEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 
 public class ClientEventHandler
 {
     @SubscribeEvent
-    public void grassColor(BiomeEvent.GetGrassColor grassColor)
+    public void onChunkUnloaded(ChunkEvent.Unload event)
     {
-        //We need the coords ;_;
-        //grassColor.biome;
+        ClientBioSystemHandler.bioSystemMap.remove(event.getChunk());
     }
 }

@@ -21,12 +21,16 @@ public class MessageBioSystemUpdate implements IMessage, IMessageHandler<Message
 
     public MessageBioSystemUpdate(BioSystem bioSystem)
     {
-        dimensionId = bioSystem.chunk.worldObj.provider.dimensionId;
-        x = bioSystem.chunk.xPosition;
-        z = bioSystem.chunk.zPosition;
-        phosphorus = bioSystem.getPhosphorus();
-        potassium = bioSystem.getPotassium();
-        nitrogen = bioSystem.getNitrogen();
+        Chunk chunk = bioSystem.chunkReference.get();
+        if (chunk != null)
+        {
+            dimensionId = chunk.worldObj.provider.dimensionId;
+            x = chunk.xPosition;
+            z = chunk.zPosition;
+            phosphorus = bioSystem.getPhosphorus();
+            potassium = bioSystem.getPotassium();
+            nitrogen = bioSystem.getNitrogen();
+        }
     }
 
     @Override
@@ -59,14 +63,7 @@ public class MessageBioSystemUpdate implements IMessage, IMessageHandler<Message
         ClientBioSystem bioSystem = new ClientBioSystem(message.phosphorus, message.potassium, message.nitrogen);
         ClientBioSystemHandler.bioSystemMap.put(chunk, bioSystem);
 
-        for (Chunk chunk1 : ClientBioSystemHandler.bioSystemMap.keySet())
-        {
-            if (chunk1.xPosition == 12 && chunk1.zPosition == 17)
-                System.out.println("CHUNK: " + chunk1);
-        }
-
         //Re-render whole chunk to update colors
-        System.out.println(String.format("%d %d %d %d %d %d", message.x << 4, 0, message.z << 4, (message.x << 4) + 15, 256, (message.z << 4) + 15));
         Minecraft.getMinecraft().theWorld.markBlockRangeForRenderUpdate(message.x << 4, 0, message.z << 4, (message.x << 4) + 15, 256, (message.z << 4) + 15);
 
         return null;
