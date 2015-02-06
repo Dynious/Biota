@@ -2,6 +2,7 @@ package com.dynious.biota;
 
 import com.dynious.biota.command.CommandBiota;
 import com.dynious.biota.config.ConfigHandler;
+import com.dynious.biota.config.DeadPlantConfig;
 import com.dynious.biota.creativetab.CreativeTabBiota;
 import com.dynious.biota.lib.Reference;
 import com.dynious.biota.network.NetworkHandler;
@@ -40,6 +41,8 @@ public class Biota
 
         ModItems.init();
         */
+
+        DeadPlantConfig.init();
 
         NetworkHandler.init();
 

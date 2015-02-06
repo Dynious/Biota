@@ -11,14 +11,6 @@ public class BioSystem
 {
     private static final Random RANDOM = new Random();
 
-    private static final int TICKS_PER_UPDATE = 200;
-
-    //168000 ticks per MC week. One week for 1.0 change in spread.
-    private static final float SPREAD_RATE = (float) TICKS_PER_UPDATE/168000;
-
-    //24000 ticks per MC day. One day for 1.0 change.
-    private static final float CHANGE_RATE = (float) TICKS_PER_UPDATE/24000;
-
     public final WeakReference<Chunk> chunkReference;
     private int tick = RANDOM.nextInt(20);
 
@@ -80,7 +72,7 @@ public class BioSystem
     private BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
     {
         this(chunk, -1F, phosphorus, potassium, nitrogen, -1F, -1F);
-        BioSystemInitThread.INSTANCE.addBioSystem(this);
+        BioSystemInitThread.addBioSystem(this);
     }
 
     private BioSystem(Chunk chunk, float biomass, float phosphorus, float potassium, float nitrogen, float decomposingBacteria, float nitrifyingBacteria)
@@ -101,6 +93,12 @@ public class BioSystem
             setChunkModified();
             this.biomass += amount;
         }
+    }
+
+    public void onGrowth(float bioMassIncrease)
+    {
+        addBiomass(bioMassIncrease);
+        //TODO: consume nutrients
     }
 
     public void setBiomass(float amount)
@@ -159,7 +157,7 @@ public class BioSystem
     {
         tick++;
 
-        if (tick % TICKS_PER_UPDATE == 0)
+        if (tick % Settings.TICKS_PER_BIOSYSTEM_UPDATE == 0)
         {
             setChunkModified();
             Chunk chunk = chunkReference.get();
@@ -174,17 +172,17 @@ public class BioSystem
 
                 //BioSystem calculations
                 //TODO: figure out good change rates, could be different for each variable
-                phosphorus += Math.min(biomass, decomposingBacteria) * CHANGE_RATE;
-                phosphorus -= biomass * CHANGE_RATE;
+                phosphorus += Math.min(biomass, decomposingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
+                phosphorus -= biomass * Settings.BIOSYSTEM_CHANGE_RATE;
 
-                potassium += Math.min(biomass, decomposingBacteria) * CHANGE_RATE;
-                potassium -= biomass * CHANGE_RATE;
+                potassium += Math.min(biomass, decomposingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
+                potassium -= biomass * Settings.BIOSYSTEM_CHANGE_RATE;
 
-                nitrogen += Math.min(Math.min(biomass, decomposingBacteria), nitrifyingBacteria) * CHANGE_RATE;
-                nitrogen -= biomass * CHANGE_RATE;
+                nitrogen += Math.min(Math.min(biomass, decomposingBacteria), nitrifyingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
+                nitrogen -= biomass * Settings.BIOSYSTEM_CHANGE_RATE;
 
-                decomposingBacteria += (biomass - decomposingBacteria) * CHANGE_RATE;
-                nitrifyingBacteria += (Math.min(biomass, decomposingBacteria) - nitrifyingBacteria) * CHANGE_RATE;
+                decomposingBacteria += (biomass - decomposingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
+                nitrifyingBacteria += (Math.min(biomass, decomposingBacteria) - nitrifyingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
             }
         }
     }
@@ -208,11 +206,11 @@ public class BioSystem
         float dDB = this.decomposingBacteria - bioSystem.decomposingBacteria;
         float dNB = this.nitrifyingBacteria - bioSystem.nitrifyingBacteria;
 
-        float spreadP = SPREAD_RATE*dP;
-        float spreadK = SPREAD_RATE*dK;
-        float spreadN = SPREAD_RATE*dN;
-        float spreadDB = SPREAD_RATE*dDB;
-        float spreadNB = SPREAD_RATE*dNB;
+        float spreadP = Settings.BIOSYSTEM_SPREAD_RATE *dP;
+        float spreadK = Settings.BIOSYSTEM_SPREAD_RATE *dK;
+        float spreadN = Settings.BIOSYSTEM_SPREAD_RATE *dN;
+        float spreadDB = Settings.BIOSYSTEM_SPREAD_RATE *dDB;
+        float spreadNB = Settings.BIOSYSTEM_SPREAD_RATE *dNB;
 
         this.phosphorus -= spreadP;
         bioSystem.phosphorus += spreadP;

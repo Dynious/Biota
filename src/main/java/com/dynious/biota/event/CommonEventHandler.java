@@ -2,8 +2,11 @@ package com.dynious.biota.event;
 
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
+import com.dynious.biota.config.PlantConfig;
+import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
+import cpw.mods.fml.common.eventhandler.Event;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,6 +14,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
+import squeek.applecore.api.plants.PlantGrowthEvent;
 
 public class CommonEventHandler
 {
@@ -64,6 +68,38 @@ public class CommonEventHandler
         if (bioSystem != null)
         {
             NetworkHandler.INSTANCE.sendTo(new MessageBioSystemUpdate(bioSystem), event.player);
+        }
+    }
+
+    @SubscribeEvent
+    public void allowPlantGrowth(PlantGrowthEvent.AllowGrowthTick event)
+    {
+        Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+
+        if (bioSystem != null)
+        {
+            float nutrientValue = bioSystem.getLowestNutrientValue();
+            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_STOP_GROWTH)
+            {
+                event.setResult(Event.Result.DENY);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlantGrowth(PlantGrowthEvent.GrowthTick event)
+    {
+        Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+
+        if (bioSystem != null)
+        {
+            //TODO: get meta values from AppleCore when implemented
+            int newMeta = event.world.getBlockMetadata(event.x, event.y, event.z);
+            int oldMeta = newMeta - 1;
+            float biomassChange = PlantConfig.INSTANCE.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.INSTANCE.getPlantBlockBiomassValue(event.block, oldMeta);
+            bioSystem.onGrowth(biomassChange);
         }
     }
 }

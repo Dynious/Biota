@@ -4,13 +4,14 @@ import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
 import com.dynious.biota.biosystem.ClientBioSystemHandler;
+import com.dynious.biota.config.DeadPlantConfig;
 import com.dynious.biota.config.PlantConfig;
+import com.dynious.biota.lib.BlockAndMeta;
+import com.dynious.biota.lib.Settings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockGrass;
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -60,15 +61,23 @@ public class Hooks
 
         if (bioSystem != null)
         {
-            //TODO: dead plants, not just disappear, also some plants might handle low nutrient values better
+            //TODO: some plants might handle low nutrient values better
             float nutrientValue = bioSystem.getLowestNutrientValue();
-            if (nutrientValue < 0.35)
+            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_DEATH)
             {
                 //Death to the plants >:c
-                //Special case for grass for now
-                if (block instanceof BlockGrass)
+                int meta = world.getBlockMetadata(x, y, z);
+                BlockAndMeta blockAndMeta = DeadPlantConfig.getDeadPlant(block, meta);
+                if (blockAndMeta != null)
                 {
-                    world.setBlock(x, y, z, Blocks.dirt);
+                    if (blockAndMeta.meta == -1)
+                    {
+                        world.setBlock(x, y, z, blockAndMeta.block, meta, 2);
+                    }
+                    else
+                    {
+                        world.setBlock(x, y, z, blockAndMeta.block, blockAndMeta.meta, 2);
+                    }
                 }
                 else
                 {
@@ -76,8 +85,9 @@ public class Hooks
                 }
             }
 
-            if (nutrientValue < 0.75)
+            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_STOP_GROWTH)
             {
+                //TODO: remove, switching to AppleCore
                 //No longer grow
                 return true;
             }

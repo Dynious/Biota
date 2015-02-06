@@ -17,8 +17,9 @@ public class PlantConfig
 {
     public static final PlantConfig INSTANCE;
 
-    private PlantConfigPart[] plants;
     private boolean initialized = false;
+
+    private PlantConfigPart[] plants;
 
     static
     {
@@ -136,7 +137,7 @@ public class PlantConfig
     private static class PlantConfigPart
     {
         private String plantClassName;
-        private float plantBiomassValue;
+        private Float plantBiomassValue;
         private float[] plantBiomassValues;
         public Class clazz;
 

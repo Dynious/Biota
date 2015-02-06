@@ -1,78 +1,56 @@
 package com.dynious.biota.biosystem;
 
 import com.dynious.biota.config.PlantConfig;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import net.minecraft.block.Block;
 import net.minecraft.world.chunk.Chunk;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 
-public class BioSystemInitThread extends Thread
+public class BioSystemInitThread implements Callable
 {
-    public static final BioSystemInitThread INSTANCE = new BioSystemInitThread();
+    private static ListeningExecutorService listeningExecutorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
 
-    private List<BioSystem> toDo = new ArrayList<BioSystem>();
+    private final BioSystem bioSystem;
 
-    private BioSystemInitThread()
+    public BioSystemInitThread(BioSystem bioSystem)
     {
-        super("BioSystemInit");
-        setPriority(4);
+        this.bioSystem = bioSystem;
     }
 
     @Override
-    public void run()
+    public Object call()
     {
-        while(true)
+        float biomass = 0F;
+        Chunk chunk = bioSystem.chunkReference.get();
+
+        if (chunk != null)
         {
-            if (!toDo.isEmpty())
+            for (int x = 0; x < 16; x++)
             {
-                float biomass = 0F;
-                BioSystem bioSystem = toDo.get(0);
-
-                Chunk chunk = bioSystem.chunkReference.get();
-
-                if (chunk != null)
+                for (int y = 0; y < 256; y++)
                 {
-                    for (int x = 0; x < 16; x++)
+                    for (int z = 0; z < 16; z++)
                     {
-                        for (int y = 0; y < 256; y++)
+                        Block block = chunk.getBlock(x, y, z);
+                        if (block instanceof IPlant)
                         {
-                            for (int z = 0; z < 16; z++)
-                            {
-                                Block block = chunk.getBlock(x, y, z);
-                                if (block instanceof IPlant)
-                                {
-                                    int meta = chunk.getBlockMetadata(x, y, z);
-                                    biomass += PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, meta);
-                                }
-                            }
+                            int meta = chunk.getBlockMetadata(x, y, z);
+                            biomass += PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, meta);
                         }
                     }
-                    bioSystem.setBiomass(biomass);
-
-
-                    toDo.remove(bioSystem);
                 }
             }
-            else
-            {
-                break;
-            }
+            bioSystem.setBiomass(biomass);
         }
-        try
-        {
-            join(1000);
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+
+        return null;
     }
 
-    public void addBioSystem(BioSystem bioSystem)
+    public static void addBioSystem(BioSystem bioSystem)
     {
-        if (bioSystem != null)
-            toDo.add(bioSystem);
-        if (!this.isAlive())
-            this.start();
+        listeningExecutorService.submit(new BioSystemInitThread(bioSystem));
     }
 }
