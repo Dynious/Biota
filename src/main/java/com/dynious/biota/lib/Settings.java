@@ -20,6 +20,14 @@ public class Settings
     //24000 ticks per MC day. One day for 1.0 change.
     public static final float BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE /24000;
 
+    public static final float PHOSPHORUS_CHANGE_RATE = 0.20F*BIOSYSTEM_CHANGE_RATE;
+    public static final float POTASSIUM_CHANGE_RATE = 1.5F*BIOSYSTEM_CHANGE_RATE;
+    public static final float NITROGEN_CHANGE_RATE = 3.3F*BIOSYSTEM_CHANGE_RATE;
+    public static final float BACTERIA_CHANGE_RATE = 10F*BIOSYSTEM_CHANGE_RATE;
+
     //168000 ticks per MC week. One week for 1.0 change in spread.
     public static final float BIOSYSTEM_SPREAD_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE /168000;
+
+    // Bacteria will start to die when there's this much biomass compared to what they can consume at max
+    public static final float BACTERIA_DEATH = 0.75F;
 }

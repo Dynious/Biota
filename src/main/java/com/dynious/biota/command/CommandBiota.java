@@ -2,6 +2,7 @@ package com.dynious.biota.command;
 
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
+import com.dynious.biota.biosystem.BioSystemInitThread;
 import com.dynious.biota.lib.Commands;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
@@ -10,8 +11,10 @@ import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class CommandBiota extends CommandBase
@@ -69,9 +72,50 @@ public class CommandBiota extends CommandBase
                         bioSystem.setNitrogen((float) parseDouble(icommandsender, args[3]));
                         System.out.println(bioSystem);
 
-                        //TODO: change to all watching!
-                        NetworkHandler.INSTANCE.sendToDimension(new MessageBioSystemUpdate(bioSystem), icommandsender.getEntityWorld().provider.dimensionId);
+                        NetworkHandler.INSTANCE.sendToPlayersWatchingChunk(new MessageBioSystemUpdate(bioSystem), (WorldServer) world, chunk.xPosition, chunk.zPosition);
                     }
+                }
+            }
+            else if (commandName.equalsIgnoreCase(Commands.GET_LOWEST_IN_WORLD))
+            {
+                float lowest = Float.MAX_VALUE;
+                int x = 0, z = 0;
+                Iterator<BioSystem> iterator = BioSystemHandler.iterator();
+                while (iterator.hasNext())
+                {
+                    BioSystem bioSystem = iterator.next();
+                    Chunk chunk = bioSystem.chunkReference.get();
+                    if (chunk != null && chunk.worldObj.equals(icommandsender.getEntityWorld()))
+                    {
+                        float value = bioSystem.getLowestNutrientValue();
+                        if (value < lowest)
+                        {
+                            lowest = value;
+                            x = chunk.xPosition;
+                            z = chunk.zPosition;
+                        }
+                    }
+                }
+                icommandsender.addChatMessage(new ChatComponentText(String.format("Lowest nutrient value in loaded world is %f in chunk at %d %d", lowest, x, z)));
+            }
+            else if (commandName.equalsIgnoreCase(Commands.GET_BIOSYSTEM))
+            {
+                World world = icommandsender.getEntityWorld();
+                Chunk chunk = world.getChunkFromBlockCoords(icommandsender.getPlayerCoordinates().posX, icommandsender.getPlayerCoordinates().posZ);
+                BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+                if (bioSystem != null)
+                {
+                    icommandsender.addChatMessage(new ChatComponentText(String.format("Biomass: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", bioSystem.getBiomass(), bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen(), bioSystem.getDecomposingBacteria(), bioSystem.getNitrifyingBacteria())));
+                }
+            }
+            else if (commandName.equalsIgnoreCase(Commands.RECALCULATE_BIOMASS))
+            {
+                World world = icommandsender.getEntityWorld();
+                Chunk chunk = world.getChunkFromBlockCoords(icommandsender.getPlayerCoordinates().posX, icommandsender.getPlayerCoordinates().posZ);
+                BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+                if (bioSystem != null)
+                {
+                    BioSystemInitThread.addBioSystem(bioSystem);
                 }
             }
         }
@@ -84,7 +128,7 @@ public class CommandBiota extends CommandBase
         {
             case 1:
             {
-                return getListOfStringsMatchingLastWord(args, Commands.HELP, Commands.SET_NUTRIENTS, Commands.GET_NUTRIENTS);
+                return getListOfStringsMatchingLastWord(args, Commands.HELP, Commands.SET_NUTRIENTS, Commands.GET_NUTRIENTS, Commands.GET_LOWEST_IN_WORLD, Commands.GET_BIOSYSTEM, Commands.RECALCULATE_BIOMASS);
             }
         }
         return null;

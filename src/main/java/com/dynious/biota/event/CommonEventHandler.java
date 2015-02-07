@@ -31,7 +31,7 @@ public class CommonEventHandler
     {
         if (!event.getChunk().worldObj.isRemote)
         {
-            BioSystemHandler.onChunkLoaded(event.getChunk(), null);
+            BioSystemHandler.onChunkLoaded(event.getChunk());
         }
     }
 

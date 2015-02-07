@@ -17,21 +17,41 @@ import net.minecraft.world.chunk.Chunk;
 
 public class Hooks
 {
-    public static boolean shouldStopUpdate(Block block)
-    {
-        System.out.println(block);
-        return false;
-    }
-
+    //TODO: Fix bacteria value not setting correctly when new chunks are populized but not calling populizeChunk (WTH?!?!) Only happens outside spawn area. FUUU MC.
     public static void onPlantBlockAdded(Block block, World world, int x, int y, int z)
     {
+        /*
+        if (BioSystemHandler.isChunkAccessible())
+        {
+            Chunk chunk = world.getChunkFromBlockCoords(x, z);
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+
+            if (bioSystem != null)
+            {
+                bioSystem.addBiomass(PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z)));
+            }
+        }
+        */
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
+        //System.out.println(world + " " + (x >> 4) + " " + (z >> 4));
         float value = PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
         BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
     }
 
     public static void onPlantBlockRemoved(Block block, World world, int x, int y, int z)
     {
+        /*
+        if (BioSystemHandler.isChunkAccessible())
+        {
+            Chunk chunk = world.getChunkFromBlockCoords(x, z);
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+
+            if (bioSystem != null)
+            {
+                bioSystem.addBiomass(-PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z)));
+            }
+        }
+        */
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
         float value = -PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
         BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
@@ -63,7 +83,7 @@ public class Hooks
         {
             //TODO: some plants might handle low nutrient values better
             float nutrientValue = bioSystem.getLowestNutrientValue();
-            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_DEATH)
+            if (false && nutrientValue < Settings.NUTRIENT_SHORTAGE_DEATH)
             {
                 //Death to the plants >:c
                 int meta = world.getBlockMetadata(x, y, z);
@@ -84,15 +104,32 @@ public class Hooks
                     world.setBlockToAir(x, y, z);
                 }
             }
-
-            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_STOP_GROWTH)
-            {
-                //TODO: remove, switching to AppleCore
-                //No longer grow
-                return true;
-            }
         }
 
         return false;
+    }
+
+    public static void preChunkPopulated(Chunk chunk)
+    {
+        /*
+        if ((chunk.xPosition) == 0 && (chunk.zPosition) == 0)
+            System.out.println("NOW NOT ACCESSIBLE!");
+        BioSystemHandler.setDecoratingChunk(true);
+        */
+    }
+
+    public static void postChunkPopulated(Chunk chunk)
+    {
+    /*
+        if ((chunk.xPosition) == 0 && (chunk.zPosition) == 0)
+            System.out.println("NOW ACCESSIBLE!");
+        BioSystemHandler.setDecoratingChunk(false);
+
+        BioSystemHandler.onChunkLoaded(chunk, null);
+        */
+
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        if (bioSystem != null)
+            BioSystemHandler.stabalizeMap.add(bioSystem);
     }
 }

@@ -64,7 +64,8 @@ public class MessageBioSystemUpdate implements IMessage, IMessageHandler<Message
         ClientBioSystemHandler.bioSystemMap.put(chunk, bioSystem);
 
         //Re-render whole chunk to update colors
-        Minecraft.getMinecraft().theWorld.markBlockRangeForRenderUpdate(message.x << 4, 0, message.z << 4, (message.x << 4) + 15, 256, (message.z << 4) + 15);
+        //System.out.println(String.format("RE-RENDER AT: %d %d", message.x, message.z));
+        Minecraft.getMinecraft().theWorld.markBlockRangeForRenderUpdate((message.x << 4) + 1, 0, (message.z << 4) + 1, (message.x << 4) + 14, 256, (message.z << 4) + 14);
 
         return null;
     }

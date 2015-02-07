@@ -40,6 +40,8 @@ public class PlantTransformer implements ITransformer
         //Add IPlant interface for easy plant checking
         classNode.interfaces.add(Type.getInternalName(IPlant.class));
 
+        boolean shouldChangeColor = PlantConfig.INSTANCE.shouldPlantChangeColor(transformedName);
+
         boolean foundAdded = false;
         boolean foundRemoved = false;
         boolean foundColor = false;
@@ -77,7 +79,7 @@ public class PlantTransformer implements ITransformer
 
                 methodNode.instructions.insert(list);
             }
-            else if (methodNode.name.equals(COLOR) && methodNode.desc.equals(COLOR_DESC))
+            else if (shouldChangeColor && methodNode.name.equals(COLOR) && methodNode.desc.equals(COLOR_DESC))
             {
                 foundColor = true;
                 Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator();
@@ -179,7 +181,7 @@ public class PlantTransformer implements ITransformer
             mv.visitInsn(RETURN);
             mv.visitMaxs(0, 0);
         }
-        if (!foundColor)
+        if (shouldChangeColor && !foundColor)
         {
             MethodVisitor mv = classNode.visitMethod(ACC_PUBLIC, COLOR, COLOR_DESC, null, null);
 

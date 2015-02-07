@@ -44,6 +44,9 @@ public class BioSystemInitThread implements Callable
                 }
             }
             bioSystem.setBiomass(biomass);
+
+            if ((chunk.xPosition) == 0 && (chunk.zPosition) == 0)
+                System.out.println("NOW INITIALIZED!");
         }
 
         return null;

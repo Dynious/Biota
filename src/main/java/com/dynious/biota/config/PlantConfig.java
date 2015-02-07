@@ -61,27 +61,26 @@ public class PlantConfig
     private static PlantConfig makeDefaultPlantConfig()
     {
         List<PlantConfigPart> list = new ArrayList<PlantConfigPart>();
-        list.add(new PlantConfigPart("net.minecraft.block.BlockGrass", 0.1F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockSapling", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockOldLog", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockOldLeaf", 1.0F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockTallGrass", 0.8F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockFlower", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockMushroom", 0.3F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockCrops", new float[] { 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F }));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockCactus", 0.6F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockPumpkin", 0.9F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockHugeMushroom", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockMelon", 0.9F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockStem", new float[] { 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F }));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockVine", 0.2F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockMycelium", 0.1F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockLilyPad", 0.2F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockNetherWart", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockCocoa", new float[] { 0.4F, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, 0.5F, 0.5F, 0.6F, 0.6F, 0.6F, 0.6F}));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockNewLeaf", 1.0F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockNewLog", 0.5F));
-        list.add(new PlantConfigPart("net.minecraft.block.BlockDoublePlant", 0.6F));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockGrass", 0.1F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockSapling", 0.5F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockLog", 0.5F, false));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockOldLeaf", 1.0F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockNewLeaf", 1.0F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockTallGrass", 0.8F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockFlower", 0.5F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockMushroom", 0.3F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockCrops", new float[] { 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F }, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockCactus", 0.6F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockPumpkin", 0.9F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockHugeMushroom", 0.5F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockMelon", 0.9F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockStem", new float[] { 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F }, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockVine", 0.2F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockMycelium", 0.1F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockLilyPad", 0.2F, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockNetherWart", 0.5F, false));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockCocoa", new float[] { 0.4F, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, 0.5F, 0.5F, 0.6F, 0.6F, 0.6F, 0.6F}, true));
+        list.add(new PlantConfigPart("net.minecraft.block.BlockDoublePlant", 0.6F, true));
         return new PlantConfig(list.toArray(new PlantConfigPart[list.size()]));
     }
 
@@ -98,6 +97,16 @@ public class PlantConfig
             strings[i] = plants[i].plantClassName;
         }
         return strings;
+    }
+
+    public boolean shouldPlantChangeColor(String name)
+    {
+        for (PlantConfigPart part : plants)
+        {
+            if (name.equals(part.plantClassName))
+                return part.shouldChangeColor;
+        }
+        return true;
     }
 
     public float getPlantBlockBiomassValue(Block block, int meta)
@@ -139,18 +148,21 @@ public class PlantConfig
         private String plantClassName;
         private Float plantBiomassValue;
         private float[] plantBiomassValues;
+        private boolean shouldChangeColor;
         public Class clazz;
 
-        private PlantConfigPart(String plantClassName, float plantBiomassValue)
+        private PlantConfigPart(String plantClassName, float plantBiomassValue, boolean shouldChangeColor)
         {
             this.plantClassName = plantClassName;
             this.plantBiomassValue = plantBiomassValue;
+            this.shouldChangeColor = shouldChangeColor;
         }
 
-        private PlantConfigPart(String plantClassName, float[] plantBiomassValues)
+        private PlantConfigPart(String plantClassName, float[] plantBiomassValues, boolean shouldChangeColor)
         {
             this.plantClassName = plantClassName;
             this.plantBiomassValues = plantBiomassValues;
+            this.shouldChangeColor = shouldChangeColor;
         }
     }
 }

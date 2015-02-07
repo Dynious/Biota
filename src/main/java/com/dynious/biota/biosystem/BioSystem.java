@@ -1,7 +1,10 @@
 package com.dynious.biota.biosystem;
 
 import com.dynious.biota.lib.Settings;
+import com.dynious.biota.network.NetworkHandler;
+import com.dynious.biota.network.message.MessageBioSystemUpdate;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
 import java.lang.ref.WeakReference;
@@ -12,12 +15,12 @@ public class BioSystem
     private static final Random RANDOM = new Random();
 
     public final WeakReference<Chunk> chunkReference;
-    private int tick = RANDOM.nextInt(20);
+    private int tick = RANDOM.nextInt(Settings.TICKS_PER_BIOSYSTEM_UPDATE);
 
     /**
      * Stores the amount of plants in the chunk. Plant blocks can have different amounts 'plant value'.
      */
-    private float biomass = -1F;
+    private float biomass;
 
     /**
      * Phosphorus is used by plants for growth. Plants and animal waste will be turned into phosphates by bacteria when decomposed.
@@ -69,10 +72,10 @@ public class BioSystem
         this(chunk, Settings.NORMAL_PHOSPHORUS + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_PHOSPHORUS, Settings.NORMAL_POTASSIUM + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_POTASSIUM, Settings.NORMAL_NITROGEN + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_NITROGEN);
     }
 
-    private BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
+    public BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
     {
-        this(chunk, -1F, phosphorus, potassium, nitrogen, -1F, -1F);
-        BioSystemInitThread.addBioSystem(this);
+        this(chunk, 0F, phosphorus, potassium, nitrogen, -1F, -1F);
+        //BioSystemInitThread.addBioSystem(this);
     }
 
     private BioSystem(Chunk chunk, float biomass, float phosphorus, float potassium, float nitrogen, float decomposingBacteria, float nitrifyingBacteria)
@@ -88,11 +91,8 @@ public class BioSystem
 
     public void addBiomass(float amount)
     {
-        if (biomass != -1F)
-        {
-            setChunkModified();
-            this.biomass += amount;
-        }
+        setChunkModified();
+        this.biomass += amount;
     }
 
     public void onGrowth(float bioMassIncrease)
@@ -108,6 +108,11 @@ public class BioSystem
         setStableBacteriaValues();
     }
 
+    public float getBiomass()
+    {
+        return biomass;
+    }
+
     public float getPhosphorus()
     {
         return phosphorus;
@@ -121,6 +126,16 @@ public class BioSystem
     public float getNitrogen()
     {
         return nitrogen;
+    }
+
+    public float getDecomposingBacteria()
+    {
+        return decomposingBacteria;
+    }
+
+    public float getNitrifyingBacteria()
+    {
+        return nitrifyingBacteria;
     }
 
     public void setPhosphorus(float phosphorus)
@@ -140,8 +155,8 @@ public class BioSystem
 
     public void setStableBacteriaValues()
     {
-        decomposingBacteria = biomass + (RANDOM.nextFloat() - 0.5F)*10;
-        nitrifyingBacteria = biomass + (RANDOM.nextFloat() - 0.5F)*10;
+        decomposingBacteria = biomass + (RANDOM.nextFloat())*(biomass/20);
+        nitrifyingBacteria = biomass + (RANDOM.nextFloat())*(biomass/20);
     }
 
     public float getLowestNutrientValue()
@@ -164,27 +179,70 @@ public class BioSystem
 
             if (chunk != null)
             {
+                debug("PRE: " + nitrogen);
+
                 //Spread BioSystem stuff to nearby chunks
                 spreadToChunk(chunk, chunk.xPosition - 1, chunk.zPosition);
                 spreadToChunk(chunk, chunk.xPosition + 1, chunk.zPosition);
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition - 1);
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition + 1);
 
+                debug("SPREAD: " + nitrogen);
+
                 //BioSystem calculations
                 //TODO: figure out good change rates, could be different for each variable
-                phosphorus += Math.min(biomass, decomposingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
-                phosphorus -= biomass * Settings.BIOSYSTEM_CHANGE_RATE;
+                phosphorus += Math.min(biomass, decomposingBacteria) * Settings.PHOSPHORUS_CHANGE_RATE;
+                phosphorus -= biomass * Settings.PHOSPHORUS_CHANGE_RATE;
+                phosphorus = Math.max(0, phosphorus);
 
-                potassium += Math.min(biomass, decomposingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
-                potassium -= biomass * Settings.BIOSYSTEM_CHANGE_RATE;
+                potassium += Math.min(biomass, decomposingBacteria) * Settings.POTASSIUM_CHANGE_RATE;
+                potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
+                potassium = Math.max(0, potassium);
 
-                nitrogen += Math.min(Math.min(biomass, decomposingBacteria), nitrifyingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
-                nitrogen -= biomass * Settings.BIOSYSTEM_CHANGE_RATE;
+                debug("BM: " + biomass + " DCOMP: " + decomposingBacteria + " NYTRI: " + nitrifyingBacteria);
 
-                decomposingBacteria += (biomass - decomposingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
-                nitrifyingBacteria += (Math.min(biomass, decomposingBacteria) - nitrifyingBacteria) * Settings.BIOSYSTEM_CHANGE_RATE;
+                nitrogen += Math.min(Math.min(biomass, decomposingBacteria), nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
+                debug("PLUS: " + nitrogen);
+                nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
+                debug("MINUS: " + nitrogen);
+                nitrogen = Math.max(0, nitrogen);
+
+                float biomassBacteriaRate = biomass / decomposingBacteria;
+                if (biomassBacteriaRate > 1)
+                {
+                    //Exponential growth
+                    decomposingBacteria += decomposingBacteria * Settings.BACTERIA_CHANGE_RATE;
+                }
+                else if (biomassBacteriaRate < Settings.BACTERIA_DEATH)
+                {
+
+                    decomposingBacteria -= (1-biomassBacteriaRate)*decomposingBacteria * Settings.BACTERIA_CHANGE_RATE;
+                }
+
+                float nirtifyingBacteriaRate = Math.min(biomass, decomposingBacteria) / nitrifyingBacteria;
+                if (nirtifyingBacteriaRate > 1)
+                {
+                    //Exponential growth
+                    nitrifyingBacteria += nitrifyingBacteria * Settings.BACTERIA_CHANGE_RATE;
+                }
+                else if (nirtifyingBacteriaRate < Settings.BACTERIA_DEATH)
+                {
+
+                    nitrifyingBacteria -= (1-nirtifyingBacteriaRate)*nitrifyingBacteria * Settings.BACTERIA_CHANGE_RATE;
+                }
+
+                //Send the chunk biomass changes to all clients watching this chunk
+                NetworkHandler.INSTANCE.sendToPlayersWatchingChunk(new MessageBioSystemUpdate(this), (WorldServer) chunk.worldObj, chunk.xPosition, chunk.zPosition);
             }
         }
+    }
+
+    private void debug(Object o)
+    {
+        Chunk chunk = chunkReference.get();
+        if (chunk != null)
+            if (chunk.xPosition == -17 && chunk.zPosition == 15)
+                System.out.println(o);
     }
 
     private void spreadToChunk(Chunk chunk, int xPos, int yPos)
@@ -195,6 +253,8 @@ public class BioSystem
             BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk1);
             if (bioSystem != null)
                 spread(bioSystem);
+            else
+                System.out.println("BIOSYSTEM IS NULL :O");
         }
     }
 
@@ -235,19 +295,16 @@ public class BioSystem
 
     public static BioSystem loadFromNBT(Chunk chunk, NBTTagCompound compound)
     {
+        float biomass = compound.getFloat("biomass");
+
+        if (biomass == -1F)
+            return new BioSystem(chunk);
+
         float phosphorus = compound.getFloat("phosphorus");
         float potassium = compound.getFloat("potassium");
         float nitrogen = compound.getFloat("nitrogen");
         float decomposingBacteria = compound.getFloat("decomposingBacteria");
         float nitrifyingBacteria = compound.getFloat("nitrifyingBacteria");
-        float biomass = compound.getFloat("biomass");
-
-        if (phosphorus == 0)
-            System.out.println("P!!");
-        if (potassium == 0)
-            System.out.println("K!!");
-        if (nitrogen == 0)
-            System.out.println("N!!");
 
         return new BioSystem(chunk, biomass, phosphorus, potassium, nitrogen, decomposingBacteria, nitrifyingBacteria);
     }
