@@ -105,7 +105,7 @@ public class CommandBiota extends CommandBase
                 BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
                 if (bioSystem != null)
                 {
-                    icommandsender.addChatMessage(new ChatComponentText(String.format("Biomass: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", bioSystem.getBiomass(), bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen(), bioSystem.getDecomposingBacteria(), bioSystem.getNitrifyingBacteria())));
+                    icommandsender.addChatMessage(new ChatComponentText(String.format("Biomass: %f, Nitrogen Fixation: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", bioSystem.getBiomass(), bioSystem.getNitrogenFixation(), bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen(), bioSystem.getDecomposingBacteria(), bioSystem.getNitrifyingBacteria())));
                 }
             }
             else if (commandName.equalsIgnoreCase(Commands.RECALCULATE_BIOMASS))

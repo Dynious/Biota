@@ -16,6 +16,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import java.util.Random;
+
 public class BlockBiota extends Block
 {
     private boolean isPlant;
@@ -49,6 +51,14 @@ public class BlockBiota extends Block
     }
 
     @Override
+    public void updateTick(World world, int x, int y, int z, Random random)
+    {
+        if (isPlant)
+            IBiotaAPI.API.onPantTick(this, world, x, y, z);
+        super.updateTick(world, x, y, z, random);
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess world, int x, int y, int z)
     {
@@ -61,6 +71,7 @@ public class BlockBiota extends Block
     @Override
     public void onBlockAdded(World world, int x, int y, int z)
     {
+        //TODO: Fix, hook is called but there's no change?
         if (isPlant)
             IBiotaAPI.API.onPantBlockAdded(this, world, x, y, z);
         super.onBlockAdded(world, x, y, z);

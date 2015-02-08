@@ -1,5 +1,6 @@
 package com.dynious.biota.biosystem;
 
+import com.dynious.biota.api.IPlant;
 import com.dynious.biota.config.PlantConfig;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;

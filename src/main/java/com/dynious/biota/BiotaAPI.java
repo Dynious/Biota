@@ -46,6 +46,12 @@ public class BiotaAPI implements IBiotaAPI
     }
 
     @Override
+    public void onPantTick(Block plantBlock, World world, int x, int y, int z)
+    {
+        Hooks.onPlantTick(plantBlock, world, x, y, z);
+    }
+
+    @Override
     @SideOnly(Side.CLIENT)
     public int getPlantColorMultiplier(int originalColor, int x, int y)
     {

@@ -1,5 +1,6 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.api.INitrogenFixator;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
@@ -21,14 +22,26 @@ public class Hooks
     {
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
         float value = PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
-        BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
+        BioSystemHandler.biomassChangeMap.adjustOrPutValue(chunkCoords, value, value);
+
+        if (block instanceof INitrogenFixator)
+        {
+            float fixation = ((INitrogenFixator) block).getNitrogenFixationAmount(world, x, y, z);
+            BioSystemHandler.nitrogenFixationChangeMap.adjustOrPutValue(chunkCoords, fixation, fixation);
+        }
     }
 
     public static void onPlantBlockRemoved(Block block, World world, int x, int y, int z)
     {
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
         float value = -PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
-        BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
+        BioSystemHandler.biomassChangeMap.adjustOrPutValue(chunkCoords, value, value);
+
+        if (block instanceof INitrogenFixator)
+        {
+            float fixation = -((INitrogenFixator) block).getNitrogenFixationAmount(world, x, y, z);
+            BioSystemHandler.nitrogenFixationChangeMap.adjustOrPutValue(chunkCoords, fixation, fixation);
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -87,6 +100,6 @@ public class Hooks
     {
         BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
         if (bioSystem != null)
-            BioSystemHandler.stabalizeMap.add(bioSystem);
+            BioSystemHandler.stabilizeList.add(bioSystem);
     }
 }

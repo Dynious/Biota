@@ -24,6 +24,11 @@ public class BioSystem
     private float biomass;
 
     /**
+     * Stores the amount of nitrogen fixated by the plants in this chunk.
+     */
+    private float nitrogenFixation;
+
+    /**
      * Phosphorus is used by plants for growth. Plants and animal waste will be turned into phosphates by bacteria when decomposed.
      * Phosphorus is usually the limiting factor in plant growth. It can be released slowly by weathering of rock but
      * can also be incorporated into rock. Bone meal has lots of phosphorus!
@@ -75,14 +80,14 @@ public class BioSystem
 
     public BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
     {
-        this(chunk, 0F, phosphorus, potassium, nitrogen, -1F, -1F);
-        //BioSystemInitThread.addBioSystem(this);
+        this(chunk, 0F, 0F, phosphorus, potassium, nitrogen, 0F, 0F);
     }
 
-    private BioSystem(Chunk chunk, float biomass, float phosphorus, float potassium, float nitrogen, float decomposingBacteria, float nitrifyingBacteria)
+    private BioSystem(Chunk chunk, float biomass, float nitrogenFixation, float phosphorus, float potassium, float nitrogen, float decomposingBacteria, float nitrifyingBacteria)
     {
         this.chunkReference = new WeakReference<Chunk>(chunk);
         this.biomass = biomass;
+        this.nitrogenFixation = nitrogenFixation;
         this.phosphorus = phosphorus;
         this.potassium = potassium;
         this.nitrogen = nitrogen;
@@ -98,8 +103,8 @@ public class BioSystem
 
     public void onGrowth(float bioMassIncrease)
     {
+        //TODO: Bonemealing will not call this!!
         addBiomass(bioMassIncrease);
-        System.out.println(bioMassIncrease);
         phosphorus -= bioMassIncrease*Settings.BIOMASS_PHOSPHORUS_RATE;
         potassium -= bioMassIncrease*Settings.BIOMASS_POTASSIUM_RATE;
         nitrogen -= bioMassIncrease*Settings.BIOMASS_NITROGEN_RATE;
@@ -115,6 +120,17 @@ public class BioSystem
     public float getBiomass()
     {
         return biomass;
+    }
+
+    public float getNitrogenFixation()
+    {
+        return nitrogenFixation;
+    }
+
+    public void addNitrogenFixation(float amount)
+    {
+        setChunkModified();
+        this.biomass += amount;
     }
 
     public float getPhosphorus()
@@ -140,6 +156,11 @@ public class BioSystem
     public float getNitrifyingBacteria()
     {
         return nitrifyingBacteria;
+    }
+
+    public void setNitrogenFixation(float nitrogenFixation)
+    {
+        this.nitrogenFixation = nitrogenFixation;
     }
 
     public void setPhosphorus(float phosphorus)
@@ -218,7 +239,7 @@ public class BioSystem
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition + 1);
 
                 //BioSystem calculations
-                //TODO: figure out good change rates, could be different for each variable
+                //TODO: figure out good change rates
                 phosphorus += Math.min(biomass, decomposingBacteria) * Settings.PHOSPHORUS_CHANGE_RATE;
                 phosphorus -= biomass * Settings.PHOSPHORUS_CHANGE_RATE;
                 phosphorus = Math.max(0, phosphorus);
@@ -227,14 +248,13 @@ public class BioSystem
                 potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
                 potassium = Math.max(0, potassium);
 
-                nitrogen += Math.min(Math.min(biomass, decomposingBacteria), nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
+                nitrogen += Math.min(Math.min(biomass, decomposingBacteria) + nitrogenFixation, nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen = Math.max(0, nitrogen);
 
                 float biomassBacteriaRate = biomass / decomposingBacteria;
                 if (biomassBacteriaRate > 1)
                 {
-                    //Exponential growth
                     decomposingBacteria += decomposingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
                 else if (biomassBacteriaRate < Settings.BACTERIA_DEATH)
@@ -243,10 +263,9 @@ public class BioSystem
                     decomposingBacteria -= (1-biomassBacteriaRate)*decomposingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
 
-                float nirtifyingBacteriaRate = Math.min(biomass, decomposingBacteria) / nitrifyingBacteria;
+                float nirtifyingBacteriaRate = (Math.min(biomass, decomposingBacteria) + nitrogenFixation) / nitrifyingBacteria;
                 if (nirtifyingBacteriaRate > 1)
                 {
-                    //Exponential growth
                     nitrifyingBacteria += nitrifyingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
                 else if (nirtifyingBacteriaRate < Settings.BACTERIA_DEATH)
@@ -312,23 +331,25 @@ public class BioSystem
     public static BioSystem loadFromNBT(Chunk chunk, NBTTagCompound compound)
     {
         float biomass = compound.getFloat("biomass");
+        float nitrogenFixation = compound.getFloat("nitrogenFixation");
         float phosphorus = compound.getFloat("phosphorus");
         float potassium = compound.getFloat("potassium");
         float nitrogen = compound.getFloat("nitrogen");
         float decomposingBacteria = compound.getFloat("decomposingBacteria");
         float nitrifyingBacteria = compound.getFloat("nitrifyingBacteria");
 
-        return new BioSystem(chunk, biomass, phosphorus, potassium, nitrogen, decomposingBacteria, nitrifyingBacteria);
+        return new BioSystem(chunk, biomass, nitrogenFixation, phosphorus, potassium, nitrogen, decomposingBacteria, nitrifyingBacteria);
     }
 
     public void saveToNBT(NBTTagCompound compound)
     {
+        compound.setFloat("biomass", biomass);
+        compound.setFloat("nitrogenFixation", nitrogenFixation);
         compound.setFloat("phosphorus", phosphorus);
         compound.setFloat("potassium", potassium);
         compound.setFloat("nitrogen", nitrogen);
         compound.setFloat("decomposingBacteria", decomposingBacteria);
         compound.setFloat("nitrifyingBacteria", nitrifyingBacteria);
-        compound.setFloat("biomass", biomass);
     }
 
     @Override
@@ -342,6 +363,9 @@ public class BioSystem
         result.append(NEW_LINE);
         result.append(" biomass: ");
         result.append(biomass);
+        result.append(NEW_LINE);
+        result.append(" nitrogen fixation: ");
+        result.append(nitrogenFixation);
         result.append(NEW_LINE);
         result.append(" phosphorus: ");
         result.append(phosphorus);

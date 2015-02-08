@@ -1,9 +1,10 @@
 package com.dynious.biota.creativetab;
 
+import com.dynious.biota.block.ModBlocks;
 import com.dynious.biota.lib.Reference;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class CreativeTabBiota extends CreativeTabs
 {
@@ -15,6 +16,12 @@ public class CreativeTabBiota extends CreativeTabs
     @Override
     public Item getTabIconItem()
     {
-        return Items.apple;
+        return null;
+    }
+
+    @Override
+    public ItemStack getIconItemStack()
+    {
+        return new ItemStack(ModBlocks.blockClover);
     }
 }

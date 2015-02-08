@@ -36,14 +36,7 @@ public class ChunkTransformer implements ITransformer
                 InsnList list = new InsnList();
 
                 list.add(new VarInsnNode(ALOAD, 0));
-                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "preChunkPopulated", CoreTransformer.isObfurscated() ? "(Lapx;)V" : "(Lnet/minecraft/world/chunk/Chunk;)V", false));
-
-                methodNode.instructions.insert(list);
-
-                InsnList aList = new InsnList();
-
-                aList.add(new VarInsnNode(ALOAD, 0));
-                aList.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "postChunkPopulated", CoreTransformer.isObfurscated() ? "(Lapx;)V" : "(Lnet/minecraft/world/chunk/Chunk;)V", false));
+                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "postChunkPopulated", CoreTransformer.isObfurscated() ? "(Lapx;)V" : "(Lnet/minecraft/world/chunk/Chunk;)V", false));
 
 
                 for (Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator(); iterator.hasNext(); )
@@ -52,7 +45,7 @@ public class ChunkTransformer implements ITransformer
                     if (node.getOpcode() == RETURN)
                     {
                         System.out.println("Added!");
-                        methodNode.instructions.insertBefore(node, aList);
+                        methodNode.instructions.insertBefore(node, list);
                         System.out.println(Arrays.toString(methodNode.instructions.toArray()));
                         break;
                     }

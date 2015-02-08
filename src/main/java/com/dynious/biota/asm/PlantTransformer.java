@@ -1,6 +1,6 @@
 package com.dynious.biota.asm;
 
-import com.dynious.biota.biosystem.IPlant;
+import com.dynious.biota.api.IPlant;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 

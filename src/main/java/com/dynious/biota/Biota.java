@@ -1,5 +1,6 @@
 package com.dynious.biota;
 
+import com.dynious.biota.block.ModBlocks;
 import com.dynious.biota.command.CommandBiota;
 import com.dynious.biota.config.ConfigHandler;
 import com.dynious.biota.config.PlantConfig;
@@ -36,11 +37,9 @@ public class Biota
     {
         ConfigHandler.init(event);
 
-        /*
         ModBlocks.init();
 
-        ModItems.init();
-        */
+        //ModItems.init();
 
         PlantConfig.init();
 

@@ -19,6 +19,8 @@ public interface IBiotaAPI
 
     public void onPantBlockRemoved(Block plantBlock, World world, int x, int y, int z);
 
+    public void onPantTick(Block plantBlock, World world, int x, int y, int z);
+
     @SideOnly(Side.CLIENT)
     public int getPlantColorMultiplier(int originalColor, int x, int y);
 

@@ -12,8 +12,9 @@ import java.util.*;
 public class BioSystemHandler
 {
     private static Map<Chunk, BioSystem> bioSystemMap = new WeakHashMap<Chunk, BioSystem>();
-    public static TObjectFloatMap<ChunkCoords> changeMap = new TObjectFloatHashMap<ChunkCoords>();
-    public static List<BioSystem> stabalizeMap = new ArrayList<BioSystem>();
+    public static TObjectFloatMap<ChunkCoords> biomassChangeMap = new TObjectFloatHashMap<ChunkCoords>();
+    public static TObjectFloatMap<ChunkCoords> nitrogenFixationChangeMap = new TObjectFloatHashMap<ChunkCoords>();
+    public static List<BioSystem> stabilizeList = new ArrayList<BioSystem>();
 
     public static void onChunkLoaded(Chunk chunk, NBTTagCompound compound)
     {
@@ -69,13 +70,16 @@ public class BioSystemHandler
     public static void update()
     {
         //long time = System.nanoTime();
-        changeMap.forEachEntry(ChunkCoordsProcedure.INSTANCE);
-        changeMap.clear();
+        biomassChangeMap.forEachEntry(BiomassProcedure.INSTANCE);
+        biomassChangeMap.clear();
 
-        if (!stabalizeMap.isEmpty())
+        nitrogenFixationChangeMap.forEachEntry(NitrogenFixationProcedure.INSTANCE);
+        nitrogenFixationChangeMap.clear();
+
+        if (!stabilizeList.isEmpty())
         {
-            List<BioSystem> copiedList = new ArrayList<BioSystem>(stabalizeMap);
-            stabalizeMap.clear();
+            List<BioSystem> copiedList = new ArrayList<BioSystem>(stabilizeList);
+            stabilizeList.clear();
             for (BioSystem bioSystem : copiedList)
                 bioSystem.setStableBacteriaValuesNearChunk();
         }
@@ -125,12 +129,11 @@ public class BioSystemHandler
         }
     }
 
-    private static class ChunkCoordsProcedure implements TObjectFloatProcedure<ChunkCoords>
+    private static class BiomassProcedure implements TObjectFloatProcedure<ChunkCoords>
     {
+        public static final BiomassProcedure INSTANCE = new BiomassProcedure();
 
-        public static final ChunkCoordsProcedure INSTANCE = new ChunkCoordsProcedure();
-
-        private ChunkCoordsProcedure()
+        private BiomassProcedure()
         {
         }
 
@@ -142,6 +145,31 @@ public class BioSystemHandler
             if (bioSystem != null)
             {
                 bioSystem.addBiomass(amount);
+            }
+            else
+            {
+                System.out.println("DIDN'T FIND BIOSYSTEM!");
+            }
+            return true;
+        }
+    }
+
+    private static class NitrogenFixationProcedure implements TObjectFloatProcedure<ChunkCoords>
+    {
+        public static final NitrogenFixationProcedure INSTANCE = new NitrogenFixationProcedure();
+
+        private NitrogenFixationProcedure()
+        {
+        }
+
+        @Override
+        public boolean execute(ChunkCoords coords, float amount)
+        {
+            Chunk chunk = coords.world.getChunkFromChunkCoords(coords.x, coords.z);
+            BioSystem bioSystem = getBioSystem(chunk);
+            if (bioSystem != null)
+            {
+                bioSystem.addNitrogenFixation(amount);
             }
             else
             {
