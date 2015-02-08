@@ -12,7 +12,6 @@ import java.util.*;
 public class BioSystemHandler
 {
     private static boolean currentlyDecorating;
-    //TODO: Check if weak hashmap actually works properly
     private static Map<Chunk, BioSystem> bioSystemMap = new WeakHashMap<Chunk, BioSystem>();
     public static TObjectFloatMap<ChunkCoords> changeMap = new TObjectFloatHashMap<ChunkCoords>();
     public static List<BioSystem> stabalizeMap = new ArrayList<BioSystem>();
@@ -30,11 +29,13 @@ public class BioSystemHandler
                 //We already have this chunk loaded, but apparently it changed, we'll need to recheck it, but keep the nutrients for minimal loss
                 BioSystem bioSystem1 = bioSystemMap.remove(chunk);
                 bioSystem = new BioSystem(chunk, bioSystem1.getPhosphorus(), bioSystem1.getPotassium(), bioSystem1.getNitrogen());
+                BioSystemInitThread.addBioSystem(bioSystem);
             }
             else
             {
                 //Existing chunk, but new BioSystem!
                 bioSystem = new BioSystem(chunk);
+                BioSystemInitThread.addBioSystem(bioSystem);
             }
         }
         else
@@ -72,9 +73,13 @@ public class BioSystemHandler
         changeMap.forEachEntry(ChunkCoordsProcedure.INSTANCE);
         changeMap.clear();
 
-        for (BioSystem bioSystem : stabalizeMap)
-            bioSystem.setStableBacteriaValues();
-        stabalizeMap.clear();
+        if (!stabalizeMap.isEmpty())
+        {
+            List<BioSystem> copiedList = new ArrayList<BioSystem>(stabalizeMap);
+            stabalizeMap.clear();
+            for (BioSystem bioSystem : copiedList)
+                bioSystem.setStableBacteriaValuesNearChunk();
+        }
 
         Iterator<BioSystem> iterator = BioSystemHandler.iterator();
         while (iterator.hasNext())
@@ -143,13 +148,10 @@ public class BioSystemHandler
         @Override
         public boolean execute(ChunkCoords coords, float amount)
         {
-            System.out.println(coords.world + " " + coords.x + " " + coords.z);
             Chunk chunk = coords.world.getChunkFromChunkCoords(coords.x, coords.z);
             BioSystem bioSystem = getBioSystem(chunk);
             if (bioSystem != null)
             {
-                if ((chunk.xPosition) == 0 && (chunk.zPosition) == 0)
-                    System.out.println("ADD: " + amount);
                 bioSystem.addBiomass(amount);
             }
             else

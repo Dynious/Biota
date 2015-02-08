@@ -20,9 +20,15 @@ public class Settings
     //24000 ticks per MC day. One day for 1.0 change.
     public static final float BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE /24000;
 
-    public static final float PHOSPHORUS_CHANGE_RATE = 0.20F*BIOSYSTEM_CHANGE_RATE;
-    public static final float POTASSIUM_CHANGE_RATE = 1.5F*BIOSYSTEM_CHANGE_RATE;
-    public static final float NITROGEN_CHANGE_RATE = 3.3F*BIOSYSTEM_CHANGE_RATE;
+    public static final float BIOMASS_PHOSPHORUS_RATE = 0.001F;
+    public static final float BIOMASS_POTASSIUM_RATE = 0.006F;
+    public static final float BIOMASS_NITROGEN_RATE = 0.014F;
+
+    private static final float NORMAL_RATE = (float) Math.cbrt(1.0 / (BIOMASS_PHOSPHORUS_RATE * BIOMASS_POTASSIUM_RATE * BIOMASS_NITROGEN_RATE));
+
+    public static final float PHOSPHORUS_CHANGE_RATE = BIOMASS_PHOSPHORUS_RATE * NORMAL_RATE * BIOSYSTEM_CHANGE_RATE;
+    public static final float POTASSIUM_CHANGE_RATE = BIOMASS_POTASSIUM_RATE * NORMAL_RATE * BIOSYSTEM_CHANGE_RATE;
+    public static final float NITROGEN_CHANGE_RATE = BIOMASS_NITROGEN_RATE * NORMAL_RATE * BIOSYSTEM_CHANGE_RATE;
     public static final float BACTERIA_CHANGE_RATE = 10F*BIOSYSTEM_CHANGE_RATE;
 
     //168000 ticks per MC week. One week for 1.0 change in spread.

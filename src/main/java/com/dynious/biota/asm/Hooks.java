@@ -5,7 +5,6 @@ import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
 import com.dynious.biota.biosystem.ClientBioSystemHandler;
 import com.dynious.biota.config.DeadPlantConfig;
-import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.lib.BlockAndMeta;
 import com.dynious.biota.lib.Settings;
 import cpw.mods.fml.relauncher.Side;
@@ -17,7 +16,7 @@ import net.minecraft.world.chunk.Chunk;
 
 public class Hooks
 {
-    //TODO: Fix bacteria value not setting correctly when new chunks are populized but not calling populizeChunk (WTH?!?!) Only happens outside spawn area. FUUU MC.
+    //TODO: Fix not all biomass added on generation
     public static void onPlantBlockAdded(Block block, World world, int x, int y, int z)
     {
         /*
@@ -32,8 +31,8 @@ public class Hooks
             }
         }
         */
+
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
-        //System.out.println(world + " " + (x >> 4) + " " + (z >> 4));
         float value = PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
         BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
     }
@@ -111,22 +110,12 @@ public class Hooks
 
     public static void preChunkPopulated(Chunk chunk)
     {
-        /*
-        if ((chunk.xPosition) == 0 && (chunk.zPosition) == 0)
-            System.out.println("NOW NOT ACCESSIBLE!");
         BioSystemHandler.setDecoratingChunk(true);
-        */
     }
 
     public static void postChunkPopulated(Chunk chunk)
     {
-    /*
-        if ((chunk.xPosition) == 0 && (chunk.zPosition) == 0)
-            System.out.println("NOW ACCESSIBLE!");
         BioSystemHandler.setDecoratingChunk(false);
-
-        BioSystemHandler.onChunkLoaded(chunk, null);
-        */
 
         BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
         if (bioSystem != null)

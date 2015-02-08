@@ -1,8 +1,8 @@
 package com.dynious.biota.event;
 
+import com.dynious.biota.asm.PlantConfig;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
-import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;

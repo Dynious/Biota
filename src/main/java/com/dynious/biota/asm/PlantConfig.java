@@ -1,4 +1,4 @@
-package com.dynious.biota.config;
+package com.dynious.biota.asm;
 
 import com.dynious.biota.lib.Reference;
 import com.google.gson.Gson;

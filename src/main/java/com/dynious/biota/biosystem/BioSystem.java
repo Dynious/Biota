@@ -4,6 +4,7 @@ import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
@@ -98,7 +99,10 @@ public class BioSystem
     public void onGrowth(float bioMassIncrease)
     {
         addBiomass(bioMassIncrease);
-        //TODO: consume nutrients
+        System.out.println(bioMassIncrease);
+        phosphorus -= bioMassIncrease*Settings.BIOMASS_PHOSPHORUS_RATE;
+        potassium -= bioMassIncrease*Settings.BIOMASS_POTASSIUM_RATE;
+        nitrogen -= bioMassIncrease*Settings.BIOMASS_NITROGEN_RATE;
     }
 
     public void setBiomass(float amount)
@@ -159,6 +163,34 @@ public class BioSystem
         nitrifyingBacteria = biomass + (RANDOM.nextFloat())*(biomass/20);
     }
 
+    public void setStableBacteriaValuesNearChunk()
+    {
+        setStableBacteriaValues();
+        Chunk chunk = chunkReference.get();
+        if (chunk != null)
+        {
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition + 1, chunk.zPosition + 1);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition, chunk.zPosition + 1);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition + 1, chunk.zPosition);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition - 1, chunk.zPosition);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition, chunk.zPosition - 1);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition - 1, chunk.zPosition - 1);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition - 1, chunk.zPosition + 1);
+            getAndStabilizeChunk(chunk.worldObj, chunk.xPosition + 1, chunk.zPosition - 1);
+        }
+    }
+
+    public void getAndStabilizeChunk(World world, int x, int z)
+    {
+        if (world.chunkExists(x, z))
+        {
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(world.getChunkFromChunkCoords(x, z));
+            if (bioSystem != null)
+                bioSystem.setStableBacteriaValues();
+        }
+
+    }
+
     public float getLowestNutrientValue()
     {
         float P = getPhosphorus() / Settings.NORMAL_PHOSPHORUS;
@@ -179,15 +211,11 @@ public class BioSystem
 
             if (chunk != null)
             {
-                debug("PRE: " + nitrogen);
-
                 //Spread BioSystem stuff to nearby chunks
                 spreadToChunk(chunk, chunk.xPosition - 1, chunk.zPosition);
                 spreadToChunk(chunk, chunk.xPosition + 1, chunk.zPosition);
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition - 1);
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition + 1);
-
-                debug("SPREAD: " + nitrogen);
 
                 //BioSystem calculations
                 //TODO: figure out good change rates, could be different for each variable
@@ -199,12 +227,8 @@ public class BioSystem
                 potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
                 potassium = Math.max(0, potassium);
 
-                debug("BM: " + biomass + " DCOMP: " + decomposingBacteria + " NYTRI: " + nitrifyingBacteria);
-
                 nitrogen += Math.min(Math.min(biomass, decomposingBacteria), nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
-                debug("PLUS: " + nitrogen);
                 nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
-                debug("MINUS: " + nitrogen);
                 nitrogen = Math.max(0, nitrogen);
 
                 float biomassBacteriaRate = biomass / decomposingBacteria;
@@ -235,14 +259,6 @@ public class BioSystem
                 NetworkHandler.INSTANCE.sendToPlayersWatchingChunk(new MessageBioSystemUpdate(this), (WorldServer) chunk.worldObj, chunk.xPosition, chunk.zPosition);
             }
         }
-    }
-
-    private void debug(Object o)
-    {
-        Chunk chunk = chunkReference.get();
-        if (chunk != null)
-            if (chunk.xPosition == -17 && chunk.zPosition == 15)
-                System.out.println(o);
     }
 
     private void spreadToChunk(Chunk chunk, int xPos, int yPos)
@@ -296,10 +312,6 @@ public class BioSystem
     public static BioSystem loadFromNBT(Chunk chunk, NBTTagCompound compound)
     {
         float biomass = compound.getFloat("biomass");
-
-        if (biomass == -1F)
-            return new BioSystem(chunk);
-
         float phosphorus = compound.getFloat("phosphorus");
         float potassium = compound.getFloat("potassium");
         float nitrogen = compound.getFloat("nitrogen");
