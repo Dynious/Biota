@@ -3,21 +3,17 @@ package com.dynious.biota.asm;
 import com.dynious.biota.lib.Reference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class PlantConfig
+public class PlantConfigLoader
 {
-    public static final PlantConfig INSTANCE;
-
-    private boolean initialized = false;
+    public static final PlantConfigLoader INSTANCE;
 
     private PlantConfigPart[] plants;
 
@@ -42,23 +38,23 @@ public class PlantConfig
         }
         else
         {
-            PlantConfig plantConfig = null;
+            PlantConfigLoader plantConfigLoader = null;
             try
             {
                 String jsonString = FileUtils.readFileToString(file);
-                plantConfig = gson.fromJson(jsonString, PlantConfig.class);
+                plantConfigLoader = gson.fromJson(jsonString, PlantConfigLoader.class);
             } catch (IOException e)
             {
                 e.printStackTrace();
             }
-            if (plantConfig == null)
-                plantConfig = makeDefaultPlantConfig();
+            if (plantConfigLoader == null)
+                plantConfigLoader = makeDefaultPlantConfig();
 
-            INSTANCE = plantConfig;
+            INSTANCE = plantConfigLoader;
         }
     }
 
-    private static PlantConfig makeDefaultPlantConfig()
+    private static PlantConfigLoader makeDefaultPlantConfig()
     {
         List<PlantConfigPart> list = new ArrayList<PlantConfigPart>();
         list.add(new PlantConfigPart("net.minecraft.block.BlockGrass", 0.1F, true));
@@ -81,10 +77,10 @@ public class PlantConfig
         list.add(new PlantConfigPart("net.minecraft.block.BlockNetherWart", 0.5F, false));
         list.add(new PlantConfigPart("net.minecraft.block.BlockCocoa", new float[] { 0.4F, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, 0.5F, 0.5F, 0.6F, 0.6F, 0.6F, 0.6F}, true));
         list.add(new PlantConfigPart("net.minecraft.block.BlockDoublePlant", 0.6F, true));
-        return new PlantConfig(list.toArray(new PlantConfigPart[list.size()]));
+        return new PlantConfigLoader(list.toArray(new PlantConfigPart[list.size()]));
     }
 
-    private PlantConfig(PlantConfigPart[] plantConfigParts)
+    private PlantConfigLoader(PlantConfigPart[] plantConfigParts)
     {
         this.plants = plantConfigParts;
     }
@@ -109,47 +105,17 @@ public class PlantConfig
         return true;
     }
 
-    public float getPlantBlockBiomassValue(Block block, int meta)
+    public PlantConfigPart[] getPlantConfig()
     {
-        if (!initialized)
-        {
-            List<PlantConfigPart> plantsNotFound = new ArrayList<PlantConfigPart>();
-            for (PlantConfigPart plantConfigPart : plants)
-            {
-                try
-                {
-                    plantConfigPart.clazz = Class.forName(plantConfigPart.plantClassName);
-                } catch (ClassNotFoundException e)
-                {
-                    plantsNotFound.add(plantConfigPart);
-                }
-            }
-            List<PlantConfigPart> list = Arrays.asList(plants);
-            list.removeAll(plantsNotFound);
-            plants = list.toArray(new PlantConfigPart[list.size()]);
-            initialized = true;
-        }
-        for (PlantConfigPart plantConfigPart : plants)
-        {
-            if (plantConfigPart.clazz.isInstance(block))
-            {
-                if (meta >= 0 && plantConfigPart.plantBiomassValues != null && meta < plantConfigPart.plantBiomassValues.length)
-                {
-                    return plantConfigPart.plantBiomassValues[meta];
-                }
-                return plantConfigPart.plantBiomassValue;
-            }
-        }
-        return 0;
+        return plants;
     }
 
-    private static class PlantConfigPart
+    public static class PlantConfigPart
     {
-        private String plantClassName;
-        private Float plantBiomassValue;
-        private float[] plantBiomassValues;
-        private boolean shouldChangeColor;
-        public Class clazz;
+        public final String plantClassName;
+        public Float plantBiomassValue;
+        public float[] plantBiomassValues;
+        public final boolean shouldChangeColor;
 
         private PlantConfigPart(String plantClassName, float plantBiomassValue, boolean shouldChangeColor)
         {

@@ -1,8 +1,8 @@
 package com.dynious.biota.event;
 
-import com.dynious.biota.asm.PlantConfig;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
+import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
@@ -98,7 +98,7 @@ public class CommonEventHandler
             //TODO: get meta values from AppleCore when implemented
             int newMeta = event.world.getBlockMetadata(event.x, event.y, event.z);
             int oldMeta = newMeta - 1;
-            float biomassChange = PlantConfig.INSTANCE.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.INSTANCE.getPlantBlockBiomassValue(event.block, oldMeta);
+            float biomassChange = PlantConfig.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.getPlantBlockBiomassValue(event.block, oldMeta);
             bioSystem.onGrowth(biomassChange);
         }
     }

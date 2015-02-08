@@ -18,9 +18,6 @@ public class ChunkProviderTransformer implements ITransformer
     private final static String CHUNK_LOAD = CoreTransformer.isObfurscated() ? "c" : "onChunkLoad";
     private final static String CHUNK_LOAD_DESC = "()V";
 
-    private final static String POPULATE = CoreTransformer.isObfurscated() ? "a" : "populateChunk";
-    private final static String POPULATE_DESC = CoreTransformer.isObfurscated() ? "(Lapu;Lapu;II)V" : "(Lnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;II)V";
-
     @Override
     public String[] getClasses()
     {
@@ -40,7 +37,6 @@ public class ChunkProviderTransformer implements ITransformer
             if (methodNode.name.equals(LOAD) && methodNode.desc.equals(LOAD_DESC))
             {
                 MethodInsnNode chunkLoadNode = null;
-                MethodInsnNode populateNode = null;
 
                 for (Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator(); iterator.hasNext(); )
                 {
@@ -51,10 +47,7 @@ public class ChunkProviderTransformer implements ITransformer
                         if (aNode.name.equals(CHUNK_LOAD) && aNode.desc.equals(CHUNK_LOAD_DESC))
                         {
                             chunkLoadNode = aNode;
-                        }
-                        else if (aNode.name.equals(POPULATE) && aNode.desc.equals(POPULATE_DESC))
-                        {
-                            populateNode = aNode;
+                            break;
                         }
                     }
                 }
@@ -67,15 +60,6 @@ public class ChunkProviderTransformer implements ITransformer
                     list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "preChunkPopulated", CoreTransformer.isObfurscated() ? "(Lapx;)V" : "(Lnet/minecraft/world/chunk/Chunk;)V", false));
 
                     methodNode.instructions.insert(chunkLoadNode, list);
-                }
-                if (populateNode != null)
-                {
-                    InsnList list = new InsnList();
-
-                    list.add(new VarInsnNode(ALOAD, 5));
-                    list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "postChunkPopulated", CoreTransformer.isObfurscated() ? "(Lapx;)V" : "(Lnet/minecraft/world/chunk/Chunk;)V", false));
-
-                    methodNode.instructions.insert(populateNode, list);
                 }
 
                 break;

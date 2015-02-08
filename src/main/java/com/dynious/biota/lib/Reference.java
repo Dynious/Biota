@@ -8,4 +8,5 @@ public class Reference
     public static final String CLIENT_PROXY = "com.dynious.biota.proxy.ClientProxy";
     public static final String SERVER_PROXY = "com.dynious.biota.proxy.CommonProxy";
     public static final String DEPENDENCIES = "";
+    public static final String RESOURCE_PREFIX = MOD_ID.toLowerCase() + ":";
 }

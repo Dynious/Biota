@@ -11,7 +11,6 @@ import java.util.*;
 
 public class BioSystemHandler
 {
-    private static boolean currentlyDecorating;
     private static Map<Chunk, BioSystem> bioSystemMap = new WeakHashMap<Chunk, BioSystem>();
     public static TObjectFloatMap<ChunkCoords> changeMap = new TObjectFloatHashMap<ChunkCoords>();
     public static List<BioSystem> stabalizeMap = new ArrayList<BioSystem>();
@@ -87,16 +86,6 @@ public class BioSystemHandler
             iterator.next().update();
         }
         //System.out.println((float)(System.nanoTime() - time) / 1000000);
-    }
-
-    public static boolean isChunkAccessible()
-    {
-        return !currentlyDecorating;
-    }
-
-    public static void setDecoratingChunk(boolean isDecorating)
-    {
-        currentlyDecorating = isDecorating;
     }
 
     public static class ChunkCoords

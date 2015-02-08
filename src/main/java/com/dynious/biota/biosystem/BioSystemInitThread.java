@@ -1,6 +1,6 @@
 package com.dynious.biota.biosystem;
 
-import com.dynious.biota.asm.PlantConfig;
+import com.dynious.biota.config.PlantConfig;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import net.minecraft.block.Block;
@@ -38,7 +38,7 @@ public class BioSystemInitThread implements Callable
                         if (block instanceof IPlant)
                         {
                             int meta = chunk.getBlockMetadata(x, y, z);
-                            biomass += PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, meta);
+                            biomass += PlantConfig.getPlantBlockBiomassValue(block, meta);
                         }
                     }
                 }

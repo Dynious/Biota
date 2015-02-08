@@ -25,7 +25,7 @@ public class PlantTransformer implements ITransformer
     @Override
     public String[] getClasses()
     {
-        return PlantConfig.INSTANCE.getPlantClassNames();
+        return PlantConfigLoader.INSTANCE.getPlantClassNames();
     }
 
     @Override
@@ -39,7 +39,7 @@ public class PlantTransformer implements ITransformer
         //Add IPlant interface for easy plant checking
         classNode.interfaces.add(Type.getInternalName(IPlant.class));
 
-        boolean shouldChangeColor = PlantConfig.INSTANCE.shouldPlantChangeColor(transformedName);
+        boolean shouldChangeColor = PlantConfigLoader.INSTANCE.shouldPlantChangeColor(transformedName);
 
         boolean foundAdded = false;
         boolean foundRemoved = false;

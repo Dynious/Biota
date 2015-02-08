@@ -4,7 +4,7 @@ import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
 import com.dynious.biota.biosystem.ClientBioSystemHandler;
-import com.dynious.biota.config.DeadPlantConfig;
+import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.lib.BlockAndMeta;
 import com.dynious.biota.lib.Settings;
 import cpw.mods.fml.relauncher.Side;
@@ -19,40 +19,15 @@ public class Hooks
     //TODO: Fix not all biomass added on generation
     public static void onPlantBlockAdded(Block block, World world, int x, int y, int z)
     {
-        /*
-        if (BioSystemHandler.isChunkAccessible())
-        {
-            Chunk chunk = world.getChunkFromBlockCoords(x, z);
-            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
-
-            if (bioSystem != null)
-            {
-                bioSystem.addBiomass(PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z)));
-            }
-        }
-        */
-
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
-        float value = PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
+        float value = PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
         BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
     }
 
     public static void onPlantBlockRemoved(Block block, World world, int x, int y, int z)
     {
-        /*
-        if (BioSystemHandler.isChunkAccessible())
-        {
-            Chunk chunk = world.getChunkFromBlockCoords(x, z);
-            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
-
-            if (bioSystem != null)
-            {
-                bioSystem.addBiomass(-PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z)));
-            }
-        }
-        */
         BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
-        float value = -PlantConfig.INSTANCE.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
+        float value = -PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
         BioSystemHandler.changeMap.adjustOrPutValue(chunkCoords, value, value);
     }
 
@@ -82,11 +57,11 @@ public class Hooks
         {
             //TODO: some plants might handle low nutrient values better
             float nutrientValue = bioSystem.getLowestNutrientValue();
-            if (false && nutrientValue < Settings.NUTRIENT_SHORTAGE_DEATH)
+            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_DEATH)
             {
                 //Death to the plants >:c
                 int meta = world.getBlockMetadata(x, y, z);
-                BlockAndMeta blockAndMeta = DeadPlantConfig.getDeadPlant(block, meta);
+                BlockAndMeta blockAndMeta = PlantConfig.getDeadPlant(block, meta);
                 if (blockAndMeta != null)
                 {
                     if (blockAndMeta.meta == -1)
@@ -108,15 +83,8 @@ public class Hooks
         return false;
     }
 
-    public static void preChunkPopulated(Chunk chunk)
-    {
-        BioSystemHandler.setDecoratingChunk(true);
-    }
-
     public static void postChunkPopulated(Chunk chunk)
     {
-        BioSystemHandler.setDecoratingChunk(false);
-
         BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
         if (bioSystem != null)
             BioSystemHandler.stabalizeMap.add(bioSystem);
