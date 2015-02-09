@@ -19,7 +19,6 @@ public class PlantConfigLoader
 
     static
     {
-        //TODO: different biomass values for different metadata values
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         File file = new File(Launch.minecraftHome, "config" + File.separator + Reference.MOD_ID.toLowerCase() + File.separator + "plants.cfg");

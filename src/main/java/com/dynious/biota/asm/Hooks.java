@@ -68,7 +68,7 @@ public class Hooks
 
         if (bioSystem != null)
         {
-            //TODO: some plants might handle low nutrient values better
+            //TODO: some plants might handle low nutrient values better, also curve fit this too
             float nutrientValue = bioSystem.getLowestNutrientValue();
             if (nutrientValue < Settings.NUTRIENT_SHORTAGE_FOR_DEATH)
             {
