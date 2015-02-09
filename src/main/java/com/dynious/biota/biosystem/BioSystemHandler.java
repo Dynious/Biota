@@ -69,9 +69,12 @@ public class BioSystemHandler
 
     public static void update()
     {
+        //System.out.println("S " + nitrogenFixationChangeMap.size());
         //long time = System.nanoTime();
         biomassChangeMap.forEachEntry(BiomassProcedure.INSTANCE);
         biomassChangeMap.clear();
+
+        //System.out.println("SA " + nitrogenFixationChangeMap.size());
 
         nitrogenFixationChangeMap.forEachEntry(NitrogenFixationProcedure.INSTANCE);
         nitrogenFixationChangeMap.clear();

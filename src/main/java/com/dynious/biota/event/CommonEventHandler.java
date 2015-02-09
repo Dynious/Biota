@@ -1,5 +1,6 @@
 package com.dynious.biota.event;
 
+import com.dynious.biota.asm.Hooks;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
@@ -11,6 +12,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
@@ -101,5 +103,14 @@ public class CommonEventHandler
             float biomassChange = PlantConfig.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.getPlantBlockBiomassValue(event.block, oldMeta);
             bioSystem.onGrowth(biomassChange);
         }
+    }
+
+    @SubscribeEvent
+    public void onBockPlaceEvent(BlockEvent.PlaceEvent event)
+    {
+        //Fix Forge (bug?) where onBlockAdded is called twice when a player places a block. This will also make sure
+        //that if the block place event is cancelled no biomass will be added.
+        //This basically just reverses one of the onBlockPlace events.
+        Hooks.onPlantBlockRemoved(event.placedBlock, event.world, event.x, event.y, event.z);
     }
 }

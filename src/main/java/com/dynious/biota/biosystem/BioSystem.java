@@ -130,7 +130,7 @@ public class BioSystem
     public void addNitrogenFixation(float amount)
     {
         setChunkModified();
-        this.biomass += amount;
+        this.nitrogenFixation += amount;
     }
 
     public float getPhosphorus()
@@ -248,6 +248,7 @@ public class BioSystem
                 potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
                 potassium = Math.max(0, potassium);
 
+                //TODO: nitrogen fixation should be calculated diffently (should not be dependant on nitrogen change rate in plnats)
                 nitrogen += Math.min(Math.min(biomass, decomposingBacteria) + nitrogenFixation, nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen = Math.max(0, nitrogen);

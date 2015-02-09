@@ -22,19 +22,25 @@ public class ClientBioSystem
         int g = (original & 0xFF00) >> 8;
         int b = original & 0xFF;
 
-        float phosphorusShortage = (phosphorus / (Settings.NORMAL_PHOSPHORUS)) - 1;
-        float phosphorusColorChange = (float) Math.pow(phosphorusShortage, 3);
+        float phosphorusDifferenceFromNormal = (phosphorus / (Settings.NORMAL_PHOSPHORUS)) - 1;
+        if (phosphorusDifferenceFromNormal > 0.1F)
+            phosphorusDifferenceFromNormal = 0.1F;
+        float phosphorusColorChange = (float) Math.pow(phosphorusDifferenceFromNormal, 3);
         r += (int) (phosphorusColorChange*255/2);
         g += (int) (phosphorusColorChange*255/2);
         b -= phosphorusColorChange*255;
 
-        float potassiumShortage = (potassium / (Settings.NORMAL_POTASSIUM)) - 1;
-        float potassiumColorChange = (float) Math.pow(potassiumShortage, 3);
+        float potassiumDifferenceFromNormal = (potassium / (Settings.NORMAL_POTASSIUM)) - 1;
+        if (potassiumDifferenceFromNormal > 0.1F)
+            potassiumDifferenceFromNormal = 0.1F;
+        float potassiumColorChange = (float) Math.pow(potassiumDifferenceFromNormal, 3);
         r -= (int) (potassiumColorChange*255/2);
         b += (int) (potassiumColorChange*255/2);
 
-        float nitrogenShortage = (nitrogen / (Settings.NORMAL_NITROGEN)) - 1;
-        float nitrogenColorChange = (float) Math.pow(nitrogenShortage, 3);
+        float nitrogenDifferenceFromNormal = (nitrogen / (Settings.NORMAL_NITROGEN)) - 1;
+        if (nitrogenDifferenceFromNormal > 0.1F)
+            nitrogenDifferenceFromNormal = 0.1F;
+        float nitrogenColorChange = (float) Math.pow(nitrogenDifferenceFromNormal, 3);
         r -= (int) (nitrogenColorChange*255/2);
         g -= (int) (nitrogenColorChange*255/2);
         b += nitrogenColorChange*b;
