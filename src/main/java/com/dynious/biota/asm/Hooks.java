@@ -70,7 +70,7 @@ public class Hooks
         {
             //TODO: some plants might handle low nutrient values better
             float nutrientValue = bioSystem.getLowestNutrientValue();
-            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_DEATH)
+            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_FOR_DEATH)
             {
                 //Death to the plants >:c
                 int meta = world.getBlockMetadata(x, y, z);

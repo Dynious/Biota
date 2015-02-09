@@ -4,6 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public interface IBiotaAPI
 {
@@ -20,6 +21,8 @@ public interface IBiotaAPI
     public void onPantBlockRemoved(Block plantBlock, World world, int x, int y, int z);
 
     public void onPantTick(Block plantBlock, World world, int x, int y, int z);
+
+    public boolean addNutrientsToBioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen);
 
     @SideOnly(Side.CLIENT)
     public int getPlantColorMultiplier(int originalColor, int x, int y);

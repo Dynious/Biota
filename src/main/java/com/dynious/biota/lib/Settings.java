@@ -11,9 +11,13 @@ public class Settings
     public static final float NORMAL_NITROGEN = 7.5F;
     public static final float DELTA_NITROGEN = 2.5F;
 
-    public static final float NUTRIENT_SHORTAGE_STOP_GROWTH = 0.75F;
-    public static final float NUTRIENT_SHORTAGE_DEATH = 0.35F;
+    public static final float MAX_PLANT_GROWTH = 1F;
+    public static final float NORMAL_PLANT_GROWTH = 0.75F;
+    public static final float MINIMAL_PLANT_GROWTH = 0F;
 
+    public static final float NUTRIENT_ABUNDANCE_FOR_MAX_GROWTH = 1.5F;
+    public static final float NUTRIENT_SHORTAGE_FOR_STOP_GROWTH = 0.75F;
+    public static final float NUTRIENT_SHORTAGE_FOR_DEATH = 0.35F;
 
     public static final int TICKS_PER_BIOSYSTEM_UPDATE = 200;
 
@@ -36,4 +40,8 @@ public class Settings
 
     // Bacteria will start to die when there's this much biomass compared to what they can consume at max
     public static final float BACTERIA_DEATH = 0.75F;
+
+    public static final float BONEMEAL_PHOSPHORUS = 1.2F;
+    public static final float BONEMEAL_POTASSIUM = 0.0F;
+    public static final float BONEMEAL_NITROGEN = 0.4F;
 }

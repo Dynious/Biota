@@ -2,12 +2,15 @@ package com.dynious.biota;
 
 import com.dynious.biota.api.IBiotaAPI;
 import com.dynious.biota.asm.Hooks;
+import com.dynious.biota.biosystem.BioSystem;
+import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.lib.BlockAndMeta;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class BiotaAPI implements IBiotaAPI
 {
@@ -49,6 +52,20 @@ public class BiotaAPI implements IBiotaAPI
     public void onPantTick(Block plantBlock, World world, int x, int y, int z)
     {
         Hooks.onPlantTick(plantBlock, world, x, y, z);
+    }
+
+    @Override
+    public boolean addNutrientsToBioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
+    {
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        if (bioSystem != null)
+        {
+            bioSystem.setPhosphorus(bioSystem.getPhosphorus() + phosphorus);
+            bioSystem.setPotassium(bioSystem.getPotassium() + potassium);
+            bioSystem.setNitrogen(bioSystem.getNitrogen() + nitrogen);
+            return true;
+        }
+        return false;
     }
 
     @Override

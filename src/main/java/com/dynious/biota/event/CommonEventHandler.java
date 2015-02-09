@@ -1,9 +1,11 @@
 package com.dynious.biota.event;
 
+import com.dynious.biota.api.IBiotaAPI;
 import com.dynious.biota.asm.Hooks;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
+import com.dynious.biota.lib.MathLib;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
@@ -12,6 +14,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -81,8 +84,8 @@ public class CommonEventHandler
 
         if (bioSystem != null)
         {
-            float nutrientValue = bioSystem.getLowestNutrientValue();
-            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_STOP_GROWTH)
+            float fittedValue = MathLib.getFittedValue(bioSystem.getLowestNutrientValue());
+            if (fittedValue < event.world.rand.nextFloat())
             {
                 event.setResult(Event.Result.DENY);
             }
@@ -112,5 +115,16 @@ public class CommonEventHandler
         //that if the block place event is cancelled no biomass will be added.
         //This basically just reverses one of the onBlockPlace events.
         Hooks.onPlantBlockRemoved(event.placedBlock, event.world, event.x, event.y, event.z);
+    }
+
+
+    @SubscribeEvent
+    public void onBonemealUsedEvent(BonemealEvent event)
+    {
+        Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
+        if (IBiotaAPI.API.addNutrientsToBioSystem(chunk, Settings.BONEMEAL_PHOSPHORUS, Settings.BONEMEAL_POTASSIUM, Settings.BONEMEAL_NITROGEN))
+            event.setResult(Event.Result.ALLOW);
+        else
+            event.setCanceled(true);
     }
 }
