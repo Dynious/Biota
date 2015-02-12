@@ -37,19 +37,19 @@ public class BiotaAPI implements IBiotaAPI
     }
 
     @Override
-    public void onPantBlockAdded(Block plantBlock, World world, int x, int y, int z)
+    public void onPlantBlockAdded(Block plantBlock, World world, int x, int y, int z)
     {
         Hooks.onPlantBlockAdded(plantBlock, world, x, y, z);
     }
 
     @Override
-    public void onPantBlockRemoved(Block plantBlock, World world, int x, int y, int z)
+    public void onPlantBlockRemoved(Block plantBlock, World world, int x, int y, int z)
     {
         Hooks.onPlantBlockRemoved(plantBlock, world, x, y, z);
     }
 
     @Override
-    public void onPantTick(Block plantBlock, World world, int x, int y, int z)
+    public void onPlantTick(Block plantBlock, World world, int x, int y, int z)
     {
         Hooks.onPlantTick(plantBlock, world, x, y, z);
     }

@@ -46,21 +46,21 @@ public interface IBiotaAPI
      *
      * @param plantBlock The block that was added
      */
-    public void onPantBlockAdded(Block plantBlock, World world, int x, int y, int z);
+    public void onPlantBlockAdded(Block plantBlock, World world, int x, int y, int z);
 
     /**
      * When Block#breakBlock is called in your plant call this!
      *
      * @param plantBlock The block that was removed
      */
-    public void onPantBlockRemoved(Block plantBlock, World world, int x, int y, int z);
+    public void onPlantBlockRemoved(Block plantBlock, World world, int x, int y, int z);
 
     /**
      * When Block#updateTick is called in your plant call this! Preferably called as soon as possible.
      *
      * @param plantBlock The plant block ticking
      */
-    public void onPantTick(Block plantBlock, World world, int x, int y, int z);
+    public void onPlantTick(Block plantBlock, World world, int x, int y, int z);
 
     /**
      * Adds the specified nutrients to the chunk. Used for fertilizers.

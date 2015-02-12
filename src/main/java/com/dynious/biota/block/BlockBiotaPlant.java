@@ -34,7 +34,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     @Override
     public void updateTick(World world, int x, int y, int z, Random random)
     {
-        IBiotaAPI.API.onPantTick(this, world, x, y, z);
+        IBiotaAPI.API.onPlantTick(this, world, x, y, z);
         super.updateTick(world, x, y, z, random);
         this.checkAndDropBlock(world, x, y, z);
     }
@@ -51,14 +51,14 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     @Override
     public void onBlockAdded(World world, int x, int y, int z)
     {
-        IBiotaAPI.API.onPantBlockAdded(this, world, x, y, z);
+        IBiotaAPI.API.onPlantBlockAdded(this, world, x, y, z);
         super.onBlockAdded(world, x, y, z);
     }
 
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
-        IBiotaAPI.API.onPantBlockRemoved(this, world, x, y, z);
+        IBiotaAPI.API.onPlantBlockRemoved(this, world, x, y, z);
         super.breakBlock(world, x, y, z, block, meta);
     }
 
