@@ -62,7 +62,7 @@ public class Hooks
      *
      * @return Stop update tick.
      */
-    public static boolean onPlantTick(Block block, World world, int x, int y, int z)
+    public static void onPlantTick(Block block, World world, int x, int y, int z)
     {
         Chunk chunk = world.getChunkFromBlockCoords(x, z);
         BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
@@ -93,9 +93,34 @@ public class Hooks
                     world.setBlockToAir(x, y, z);
                 }
             }
+            else if (nutrientValue > Settings.NUTRIENT_ABUNDANCE_FOR_SPREAD && lightValue > Settings.LIGHT_VALUE_FOR_SPREAD)
+            {
+                //TODO: Register plants that spread and not just spread all plants, also set the correct spread chance again!
+                if (world.rand.nextFloat() < Settings.PLANT_SPREAD_CHANCE)
+                {
+                    Block newBlock = block;
+                    int newMeta = world.getBlockMetadata(x, y, z);
+                    for (int i = -1; i < 2; i++)
+                    {
+                        for (int j = -1; j < 2; j++)
+                        {
+                            for (int k = -1; k < 2; k++)
+                            {
+                                if (i == 0 && j == 0 && k == 0)
+                                    continue;
+                                if (world.isAirBlock(x + i, y + j, z + k) && block.canBlockStay(world, x + i, y + j, z + k))
+                                {
+                                    if (world.setBlock(x + i, y + j, z + k, newBlock, newMeta, 3))
+                                        return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        return false;
+        return;
     }
 
     public static void postChunkPopulated(Chunk chunk)

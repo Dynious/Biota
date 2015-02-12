@@ -1,7 +1,10 @@
 package com.dynious.biota.asm;
 
 import com.dynious.biota.api.IPlant;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.Iterator;
@@ -100,31 +103,16 @@ public class PlantTransformer implements ITransformer
             else if (methodNode.name.equals(TICK) && methodNode.desc.equals(TICK_DESC))
             {
                 foundTick = true;
-
                 InsnList list = new InsnList();
-                LabelNode labelNode = new LabelNode();
 
                 list.add(new VarInsnNode(ALOAD, 0));
                 list.add(new VarInsnNode(ALOAD, 1));
                 list.add(new VarInsnNode(ILOAD, 2));
                 list.add(new VarInsnNode(ILOAD, 3));
                 list.add(new VarInsnNode(ILOAD, 4));
-                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)Z" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)Z", false));
-                list.add(new JumpInsnNode(IFNE, labelNode));
+                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
 
                 methodNode.instructions.insert(list);
-
-                Iterator<AbstractInsnNode> iterator = methodNode.instructions.iterator();
-                while(iterator.hasNext())
-                {
-                    AbstractInsnNode node = iterator.next();
-                    if (node.getOpcode() == RETURN)
-                    {
-                        methodNode.instructions.insertBefore(node, labelNode);
-                        break;
-                    }
-                }
-
             }
         }
 
@@ -205,15 +193,12 @@ public class PlantTransformer implements ITransformer
         {
             MethodVisitor mv = classNode.visitMethod(ACC_PUBLIC, TICK, TICK_DESC, null, null);
 
-            Label label = new Label();
-
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
             mv.visitVarInsn(ILOAD, 2);
             mv.visitVarInsn(ILOAD, 3);
             mv.visitVarInsn(ILOAD, 4);
-            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)Z" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)Z", false);
-            mv.visitJumpInsn(IFNE, label);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false);
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
@@ -223,7 +208,6 @@ public class PlantTransformer implements ITransformer
             mv.visitVarInsn(ALOAD, 5);
             mv.visitMethodInsn(INVOKESPECIAL, classNode.superName, TICK, TICK_DESC, false);
 
-            mv.visitLabel(label);
             mv.visitInsn(RETURN);
             mv.visitMaxs(0, 0);
 
