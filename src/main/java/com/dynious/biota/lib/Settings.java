@@ -16,14 +16,21 @@ public class Settings
     public static final float MINIMAL_PLANT_GROWTH = 0F;
 
     public static final float NUTRIENT_ABUNDANCE_FOR_MAX_GROWTH = 1.5F;
+    public static final float NUTRIENT_AMOUNT_FOR_NORMAL_GROWTH = 1.0F;
     public static final float NUTRIENT_SHORTAGE_FOR_STOP_GROWTH = 0.75F;
     public static final float NUTRIENT_SHORTAGE_FOR_DEATH = 0.35F;
+
+    public static final float LIGHT_VALUE_FOR_MAX_GROWTH = 12;
+    public static final float LIGHT_VALUE_FOR_NORMAL_GROWTH = 10;
+    public static final float LIGHT_VALUE_FOR_STOP_GROWTH = 8;
+    public static final float LIGHT_VALUE_FOR_DEATH = 6;
 
     public static final int TICKS_PER_BIOSYSTEM_UPDATE = 200;
 
     //24000 ticks per MC day. One day for 1.0 change.
     public static final float BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE /24000;
 
+    //Mass fraction of nutrients in biomass
     public static final float BIOMASS_PHOSPHORUS_RATE = 0.001F;
     public static final float BIOMASS_POTASSIUM_RATE = 0.006F;
     public static final float BIOMASS_NITROGEN_RATE = 0.014F;

@@ -6,6 +6,7 @@ import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
 import com.dynious.biota.biosystem.ClientBioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
+import com.dynious.biota.helper.WorldHelper;
 import com.dynious.biota.lib.BlockAndMeta;
 import com.dynious.biota.lib.Settings;
 import cpw.mods.fml.relauncher.Side;
@@ -68,9 +69,10 @@ public class Hooks
 
         if (bioSystem != null)
         {
-            //TODO: some plants might handle low nutrient values better, also curve fit this too
+            //TODO: some plants might handle low nutrient values better, also curve fit this too, light checking uses 0.05 ms per player loaded area, too much?
             float nutrientValue = bioSystem.getLowestNutrientValue();
-            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_FOR_DEATH)
+            int lightValue = block.isOpaqueCube() ? WorldHelper.getLightValue(world, x, y + 1, z) : WorldHelper.getLightValue(world, x, y, z);
+            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_FOR_DEATH || lightValue < Settings.LIGHT_VALUE_FOR_DEATH)
             {
                 //Death to the plants >:c
                 int meta = world.getBlockMetadata(x, y, z);

@@ -5,6 +5,7 @@ import com.dynious.biota.asm.Hooks;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
+import com.dynious.biota.helper.WorldHelper;
 import com.dynious.biota.lib.MathLib;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
@@ -84,8 +85,10 @@ public class CommonEventHandler
 
         if (bioSystem != null)
         {
-            float fittedValue = MathLib.getFittedValue(bioSystem.getLowestNutrientValue());
-            if (fittedValue < event.world.rand.nextFloat())
+            float nutrientGrowChance = MathLib.getFittedValue(bioSystem.getLowestNutrientValue(), Settings.NUTRIENT_SHORTAGE_FOR_STOP_GROWTH, Settings.NUTRIENT_AMOUNT_FOR_NORMAL_GROWTH, Settings.NUTRIENT_ABUNDANCE_FOR_MAX_GROWTH);
+            float lightGrowChance = MathLib.getFittedValue(WorldHelper.getLightValue(event.world, event.x, event.y, event.z), Settings.LIGHT_VALUE_FOR_STOP_GROWTH, Settings.LIGHT_VALUE_FOR_NORMAL_GROWTH, Settings.LIGHT_VALUE_FOR_MAX_GROWTH);
+
+            if (Math.min(nutrientGrowChance, lightGrowChance) < event.world.rand.nextFloat())
             {
                 event.setResult(Event.Result.DENY);
             }
