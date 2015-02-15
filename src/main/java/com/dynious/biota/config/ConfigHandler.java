@@ -7,6 +7,8 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.common.config.Configuration;
 
+import java.io.File;
+
 public class ConfigHandler
 {
     public static Configuration configFile;
@@ -14,7 +16,7 @@ public class ConfigHandler
     public static void init(FMLPreInitializationEvent event)
     {
         FMLCommonHandler.instance().bus().register(new ConfigHandler());
-        configFile = new Configuration(event.getSuggestedConfigurationFile());
+        configFile = new Configuration(new File(event.getModConfigurationDirectory(),  Reference.MOD_ID.toLowerCase() + File.separator + "general.cfg"));
         syncConfig();
     }
 

@@ -1,11 +1,12 @@
 package com.dynious.biota;
 
+import com.dynious.biota.api.BlockAndMeta;
 import com.dynious.biota.api.IBiotaAPI;
+import com.dynious.biota.api.IPlantSpreader;
 import com.dynious.biota.asm.Hooks;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
-import com.dynious.biota.lib.BlockAndMeta;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -26,14 +27,21 @@ public class BiotaAPI implements IBiotaAPI
     public void registerPlantValue(Block plantBlock, float biomassValue)
     {
         if (plantBlock != null)
-            PlantConfig.registerPlantValue(plantBlock.getClass(), new float[] { biomassValue });
+            PlantConfig.registerPlantValue(plantBlock, new float[] { biomassValue });
+    }
+
+    @Override
+    public void registerPlantSpreader(Block plantBlock, IPlantSpreader plantSpreader)
+    {
+        if (plantBlock != null && plantSpreader != null)
+            PlantConfig.registerPlantSpreader(plantBlock, plantSpreader);
     }
 
     @Override
     public void registerPlantValue(Block plantBlock, float[] biomassValues)
     {
-        if (plantBlock != null && biomassValues != null && biomassValues.length > 0)
-            PlantConfig.registerPlantValue(plantBlock.getClass(), biomassValues);
+        if (plantBlock != null)
+            PlantConfig.registerPlantValue(plantBlock, biomassValues);
     }
 
     @Override

@@ -70,7 +70,6 @@ public class CommandBiota extends CommandBase
                         bioSystem.setPhosphorus((float) parseDouble(icommandsender, args[1]));
                         bioSystem.setPotassium((float) parseDouble(icommandsender, args[2]));
                         bioSystem.setNitrogen((float) parseDouble(icommandsender, args[3]));
-                        System.out.println(bioSystem);
 
                         NetworkHandler.INSTANCE.sendToPlayersWatchingChunk(new MessageBioSystemUpdate(bioSystem), (WorldServer) world, chunk.xPosition, chunk.zPosition);
                     }

@@ -20,6 +20,7 @@ import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkWatchEvent;
+import squeek.applecore.api.plants.FertilizationEvent;
 import squeek.applecore.api.plants.PlantGrowthEvent;
 
 public class CommonEventHandler
@@ -103,11 +104,9 @@ public class CommonEventHandler
 
         if (bioSystem != null)
         {
-            //TODO: get meta values from AppleCore when implemented
             int newMeta = event.world.getBlockMetadata(event.x, event.y, event.z);
-            int oldMeta = newMeta - 1;
-            float biomassChange = PlantConfig.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.getPlantBlockBiomassValue(event.block, oldMeta);
-            bioSystem.onGrowth(biomassChange);
+            float biomassChange = PlantConfig.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.getPlantBlockBiomassValue(event.block, event.previousMetadata);
+            bioSystem.onGrowth(biomassChange, true);
         }
     }
 
@@ -129,5 +128,25 @@ public class CommonEventHandler
             event.setResult(Event.Result.ALLOW);
         else
             event.setCanceled(true);
+    }
+
+    @SubscribeEvent
+    public void allowFertilization(FertilizationEvent.Fertilize event)
+    {
+        event.setResult(Event.Result.DENY);
+    }
+
+    @SubscribeEvent
+    public void onFertilization(FertilizationEvent.Fertilized event)
+    {
+        Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+
+        if (bioSystem != null)
+        {
+            int newMeta = event.world.getBlockMetadata(event.x, event.y, event.z);
+            float biomassChange = PlantConfig.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.getPlantBlockBiomassValue(event.block, event.previousMetadata);
+            bioSystem.onGrowth(biomassChange, true);
+        }
     }
 }

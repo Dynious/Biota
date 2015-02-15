@@ -1,5 +1,6 @@
 package com.dynious.biota.biosystem;
 
+import com.dynious.biota.Biota;
 import gnu.trove.map.TObjectFloatMap;
 import gnu.trove.map.hash.TObjectFloatHashMap;
 import gnu.trove.procedure.TObjectFloatProcedure;
@@ -69,12 +70,8 @@ public class BioSystemHandler
 
     public static void update()
     {
-        //System.out.println("S " + nitrogenFixationChangeMap.size());
-        //long time = System.nanoTime();
         biomassChangeMap.forEachEntry(BiomassProcedure.INSTANCE);
         biomassChangeMap.clear();
-
-        //System.out.println("SA " + nitrogenFixationChangeMap.size());
 
         nitrogenFixationChangeMap.forEachEntry(NitrogenFixationProcedure.INSTANCE);
         nitrogenFixationChangeMap.clear();
@@ -92,7 +89,6 @@ public class BioSystemHandler
         {
             iterator.next().update();
         }
-        //System.out.println((float)(System.nanoTime() - time) / 1000000);
     }
 
     public static class ChunkCoords
@@ -151,7 +147,7 @@ public class BioSystemHandler
             }
             else
             {
-                System.out.println("DIDN'T FIND BIOSYSTEM!");
+                Biota.logger.warn(String.format("Couldn't find BioSystem at: %d %d", coords.x, coords.z));
             }
             return true;
         }
@@ -176,7 +172,7 @@ public class BioSystemHandler
             }
             else
             {
-                System.out.println("DIDN'T FIND BIOSYSTEM!");
+                Biota.logger.warn(String.format("Couldn't find BioSystem at: %d %d", coords.x, coords.z));
             }
             return true;
         }

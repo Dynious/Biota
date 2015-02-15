@@ -1,4 +1,4 @@
-package com.dynious.biota.lib;
+package com.dynious.biota.api;
 
 import net.minecraft.block.Block;
 

@@ -27,7 +27,7 @@ public class Settings
     public static final float LIGHT_VALUE_FOR_STOP_GROWTH = 8;
     public static final float LIGHT_VALUE_FOR_DEATH = 6;
 
-    public static final float PLANT_SPREAD_CHANCE = 1.04F;
+    public static final float PLANT_SPREAD_CHANCE = 0.05F;
 
     public static final int TICKS_PER_BIOSYSTEM_UPDATE = 200;
 

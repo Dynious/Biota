@@ -1,5 +1,6 @@
 package com.dynious.biota.biosystem;
 
+import com.dynious.biota.Biota;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
@@ -101,13 +102,14 @@ public class BioSystem
         this.biomass += amount;
     }
 
-    public void onGrowth(float bioMassIncrease)
+    public void onGrowth(float bioMassIncrease, boolean addBiomass)
     {
-        //TODO: Bonemealing will not call this!!
-        addBiomass(bioMassIncrease);
+        if (addBiomass)
+            addBiomass(bioMassIncrease);
         phosphorus -= bioMassIncrease*Settings.BIOMASS_PHOSPHORUS_RATE;
         potassium -= bioMassIncrease*Settings.BIOMASS_POTASSIUM_RATE;
         nitrogen -= bioMassIncrease*Settings.BIOMASS_NITROGEN_RATE;
+        setChunkModified();
     }
 
     public void setBiomass(float amount)
@@ -281,16 +283,16 @@ public class BioSystem
         }
     }
 
-    private void spreadToChunk(Chunk chunk, int xPos, int yPos)
+    private void spreadToChunk(Chunk chunk, int xPos, int zPos)
     {
-        if (chunk.worldObj.chunkExists(xPos, yPos))
+        if (chunk.worldObj.chunkExists(xPos, zPos))
         {
-            Chunk chunk1 = chunk.worldObj.getChunkFromChunkCoords(xPos, yPos);
+            Chunk chunk1 = chunk.worldObj.getChunkFromChunkCoords(xPos, zPos);
             BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk1);
             if (bioSystem != null)
                 spread(bioSystem);
             else
-                System.out.println("BIOSYSTEM IS NULL :O");
+                Biota.logger.warn(String.format("Couldn't find BioSystem at: %d %d", xPos, zPos));
         }
     }
 

@@ -14,6 +14,8 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import net.minecraft.creativetab.CreativeTabs;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Mod(modid = Reference.MOD_ID, name = Reference.NAME, version = Reference.VERSION, dependencies = Reference.DEPENDENCIES, guiFactory = "com.dynious.biota.config.GuiFactory")
 public class Biota
@@ -25,6 +27,7 @@ public class Biota
     public static CommonProxy proxy;
 
     public static CreativeTabs tabBiota = new CreativeTabBiota();
+    public static Logger logger = LogManager.getLogger(Reference.MOD_ID);
 
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event)

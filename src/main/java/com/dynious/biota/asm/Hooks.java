@@ -1,13 +1,14 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.api.BlockAndMeta;
 import com.dynious.biota.api.INitrogenFixator;
+import com.dynious.biota.api.IPlantSpreader;
 import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
 import com.dynious.biota.biosystem.ClientBioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.helper.WorldHelper;
-import com.dynious.biota.lib.BlockAndMeta;
 import com.dynious.biota.lib.Settings;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -58,10 +59,6 @@ public class Hooks
         return originalColor;
     }
 
-    /**
-     *
-     * @return Stop update tick.
-     */
     public static void onPlantTick(Block block, World world, int x, int y, int z)
     {
         Chunk chunk = world.getChunkFromBlockCoords(x, z);
@@ -95,32 +92,17 @@ public class Hooks
             }
             else if (nutrientValue > Settings.NUTRIENT_ABUNDANCE_FOR_SPREAD && lightValue > Settings.LIGHT_VALUE_FOR_SPREAD)
             {
-                //TODO: Register plants that spread and not just spread all plants, also set the correct spread chance again!
-                if (world.rand.nextFloat() < Settings.PLANT_SPREAD_CHANCE)
+                IPlantSpreader spreader = PlantConfig.getPlantSpreader(block);
+                if (spreader != null && spreader.canSpread(world, x, y, z, block) && world.rand.nextFloat() < Settings.PLANT_SPREAD_CHANCE)
                 {
-                    Block newBlock = block;
-                    int newMeta = world.getBlockMetadata(x, y, z);
-                    for (int i = -1; i < 2; i++)
+                    BlockAndMeta blockAndMeta = spreader.spread(world, x, y, z, block);
+                    if (blockAndMeta != null)
                     {
-                        for (int j = -1; j < 2; j++)
-                        {
-                            for (int k = -1; k < 2; k++)
-                            {
-                                if (i == 0 && j == 0 && k == 0)
-                                    continue;
-                                if (world.isAirBlock(x + i, y + j, z + k) && block.canBlockStay(world, x + i, y + j, z + k))
-                                {
-                                    if (world.setBlock(x + i, y + j, z + k, newBlock, newMeta, 3))
-                                        return;
-                                }
-                            }
-                        }
+                        bioSystem.onGrowth(PlantConfig.getPlantBlockBiomassValue(blockAndMeta.block, blockAndMeta.meta), false);
                     }
                 }
             }
         }
-
-        return;
     }
 
     public static void postChunkPopulated(Chunk chunk)

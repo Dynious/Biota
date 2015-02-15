@@ -31,6 +31,14 @@ public interface IBiotaAPI
     public void registerPlantValue(Block plantBlock, float biomassValue);
 
     /**
+     * Registers an IPlantSpreader for the given block. You should register the plant value before you register the spreader!
+     *
+     * @param plantBlock The block of the plant
+     * @param plantSpreader The IPlantSpreader
+     */
+    public void registerPlantSpreader(Block plantBlock, IPlantSpreader plantSpreader);
+
+    /**
      * Registers a biomass value for the given block. Uses the value from the array of the metadata value of the block.
      * If this metadata value is larger than the array size it will use the first value
      *

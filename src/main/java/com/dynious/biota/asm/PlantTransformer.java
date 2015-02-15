@@ -1,5 +1,6 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.Biota;
 import com.dynious.biota.api.IPlant;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -28,13 +29,13 @@ public class PlantTransformer implements ITransformer
     @Override
     public String[] getClasses()
     {
-        return PlantConfigLoader.INSTANCE.getPlantClassNames();
+        return PlantTransformerConfig.INSTANCE.getPlantClassNames();
     }
 
     @Override
     public byte[] transform(String transformedName, byte[] clazz)
     {
-        System.out.println("Transforming: " + transformedName);
+        Biota.logger.debug("Transforming: " + transformedName);
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(clazz);
         classReader.accept(classNode, 0);
@@ -42,7 +43,7 @@ public class PlantTransformer implements ITransformer
         //Add IPlant interface for easy plant checking
         classNode.interfaces.add(Type.getInternalName(IPlant.class));
 
-        boolean shouldChangeColor = PlantConfigLoader.INSTANCE.shouldPlantChangeColor(transformedName);
+        boolean shouldChangeColor = PlantTransformerConfig.INSTANCE.shouldPlantChangeColor(transformedName);
 
         boolean foundAdded = false;
         boolean foundRemoved = false;

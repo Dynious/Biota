@@ -1,11 +1,11 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.Biota;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.util.Arrays;
 import java.util.Iterator;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -24,7 +24,7 @@ public class ChunkTransformer implements ITransformer
     @Override
     public byte[] transform(String transformedName, byte[] clazz)
     {
-        System.out.println("Transforming: " + transformedName);
+        Biota.logger.debug("Transforming: " + transformedName);
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(clazz);
         classReader.accept(classNode, 0);
@@ -44,9 +44,7 @@ public class ChunkTransformer implements ITransformer
                     AbstractInsnNode node = iterator.next();
                     if (node.getOpcode() == RETURN)
                     {
-                        System.out.println("Added!");
                         methodNode.instructions.insertBefore(node, list);
-                        System.out.println(Arrays.toString(methodNode.instructions.toArray()));
                         break;
                     }
                 }

@@ -22,7 +22,7 @@ group= "com.dynious.biota" // http://maven.apache.org/guides/mini/guide-naming-c
 archivesBaseName = "Biota"
 
 minecraft {
-    version = "1.7.10-10.13.2.1291"
+    version = "1.7.10-10.13.2.1307-1.7.10"
 }
 
 repositories {
@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-	compile "applecore:AppleCore:1.7.10-1.1.0:deobf"
+	compile "applecore:AppleCore:1.7.10-1.2.1:deobf"
 
 }
 
