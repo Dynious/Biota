@@ -6,6 +6,7 @@ import com.dynious.biota.biosystem.BioSystem;
 import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.helper.WorldHelper;
+import com.dynious.biota.item.ModItems;
 import com.dynious.biota.lib.MathLib;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
@@ -13,6 +14,9 @@ import com.dynious.biota.network.message.MessageBioSystemUpdate;
 import cpw.mods.fml.common.eventhandler.Event;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.entity.player.BonemealEvent;
@@ -147,6 +151,33 @@ public class CommonEventHandler
             int newMeta = event.world.getBlockMetadata(event.x, event.y, event.z);
             float biomassChange = PlantConfig.getPlantBlockBiomassValue(event.block, newMeta) - PlantConfig.getPlantBlockBiomassValue(event.block, event.previousMetadata);
             bioSystem.onGrowth(biomassChange, true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onBlockDrops(BlockEvent.HarvestDropsEvent event)
+    {
+        if (event.block == Blocks.clay && !event.isSilkTouching)
+        {
+            for (int x = event.x - 1; x < event.x + 1; x++)
+            {
+                for (int y = event.y - 1; y < event.y + 1; y++)
+                {
+                    for (int z = event.z - 1; z < event.z + 1; z++)
+                    {
+                        if (event.world.getBlock(x, y, z).getMaterial() == Material.water)
+                        {
+                            int fortune = event.fortuneLevel;
+                            if (fortune > 3)
+                                fortune = 3;
+
+                            if (event.world.rand.nextInt(10 - fortune * 3) == 0)
+                                event.drops.add(new ItemStack(ModItems.potash));
+                            return;
+                        }
+                    }
+                }
+            }
         }
     }
 }
