@@ -158,26 +158,34 @@ public class PlantConfig
                     loader = makeDefaultPlantConfig();
 
             }
-            for (LoaderPart part : loader.plants)
+            LoaderPart[] plants1 = loader.plants;
+            for (int i = 0; i < plants1.length; i++)
             {
-                int index = part.blockName.indexOf(':');
-                Block block = GameRegistry.findBlock(part.blockName.substring(0, index), part.blockName.substring(index + 1));
-                if (block != null)
+                LoaderPart part = plants1[i];
+                if (part.blockName != null)
                 {
-                    float[] biomassValues;
-                    if (part.plantBiomassValues != null)
-                        biomassValues = part.plantBiomassValues;
-                    else
-                        biomassValues = new float[] { part.plantBiomassValue };
+                    int index = part.blockName.indexOf(':');
+                    Block block = GameRegistry.findBlock(part.blockName.substring(0, index), part.blockName.substring(index + 1));
+                    if (block != null)
+                    {
+                        float[] biomassValues;
+                        if (part.plantBiomassValues != null)
+                            biomassValues = part.plantBiomassValues;
+                        else
+                            biomassValues = new float[]{part.plantBiomassValue};
 
-                    if (part.useDefaultSpreader != null && part.useDefaultSpreader)
-                        plantInfoMap.put(block, new PlantInfo(biomassValues, DefaultPlantSpreader.INSTANCE));
-                    else
-                        plantInfoMap.put(block, new PlantInfo(biomassValues));
+                        if (part.useDefaultSpreader != null && part.useDefaultSpreader)
+                            plantInfoMap.put(block, new PlantInfo(biomassValues, DefaultPlantSpreader.INSTANCE));
+                        else
+                            plantInfoMap.put(block, new PlantInfo(biomassValues));
+                    } else
+                    {
+                        Biota.logger.warn("Unable to find plant block:" + part.blockName);
+                    }
                 }
                 else
                 {
-                    Biota.logger.warn("Unable to find plant block:" + part.blockName);
+                    Biota.logger.warn("Unable to find plant block at index: " + i);
                 }
             }
         }

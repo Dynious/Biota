@@ -15,7 +15,8 @@ public class CoreTransformer implements IClassTransformer
         transformers = new ITransformer[]
                 {
                         new PlantTransformer(),
-                        new ChunkTransformer()
+                        new ChunkTransformer(),
+                        new TreeTransformer()
                 };
     }
 

@@ -111,4 +111,19 @@ public class Hooks
         if (bioSystem != null)
             BioSystemHandler.stabilizeList.add(bioSystem);
     }
+
+    public static void onPlantGrowth(World world, int x, int y, int z, Block block, int meta)
+    {
+        float biomass = PlantConfig.getPlantBlockBiomassValue(block, meta);
+        if (biomass != 0F)
+        {
+            Chunk chunk = world.getChunkFromBlockCoords(x, z);
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+
+            if (bioSystem != null)
+            {
+                bioSystem.onGrowth(biomass, false);
+            }
+        }
+    }
 }

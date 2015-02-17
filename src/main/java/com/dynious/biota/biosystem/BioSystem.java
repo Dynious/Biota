@@ -72,6 +72,14 @@ public class BioSystem
      */
     private float nitrifyingBacteria;
 
+    /*
+    Soil density: 1360 kg/m^3
+    Around 768 dirt blocks per chunk (calculate this? biome dependant?) (16*16*3)
+    1044480 kg of dirt per chunk
+    We assume all parts in soil weigh the same so: 1.04448 kg per millionth part (for ppm)
+    1 ppm ~= 1 kg
+     */
+
 
     public BioSystem(Chunk chunk)
     {
@@ -234,27 +242,8 @@ public class BioSystem
 
             if (chunk != null)
             {
-                //Spread BioSystem stuff to nearby chunks
-                spreadToChunk(chunk, chunk.xPosition - 1, chunk.zPosition);
-                spreadToChunk(chunk, chunk.xPosition + 1, chunk.zPosition);
-                spreadToChunk(chunk, chunk.xPosition, chunk.zPosition - 1);
-                spreadToChunk(chunk, chunk.xPosition, chunk.zPosition + 1);
-
-                //BioSystem calculations
-                //TODO: figure out good change rates
-                phosphorus += Math.min(biomass, decomposingBacteria) * Settings.PHOSPHORUS_CHANGE_RATE;
-                phosphorus -= biomass * Settings.PHOSPHORUS_CHANGE_RATE;
-                phosphorus = Math.max(0, phosphorus);
-
-                potassium += Math.min(biomass, decomposingBacteria) * Settings.POTASSIUM_CHANGE_RATE;
-                potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
-                potassium = Math.max(0, potassium);
-
-                //TODO: nitrogen fixation should be calculated diffently (should not be dependant on nitrogen change rate in plnats)
-                nitrogen += Math.min(Math.min(biomass, decomposingBacteria) + nitrogenFixation, nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
-                nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
-                nitrogen = Math.max(0, nitrogen);
-
+                //TODO: BALANCE! BIOMASS INCREASE HAS A VERY DRAMATIC EFFECT, NUTRIENT USAGE TOO HIGH.
+                //Bacteria calculations
                 float biomassBacteriaRate = biomass / decomposingBacteria;
                 if (biomassBacteriaRate > 1)
                 {
@@ -276,6 +265,27 @@ public class BioSystem
 
                     nitrifyingBacteria -= (1-nirtifyingBacteriaRate)*nitrifyingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
+
+                //Nutrient calculations
+                //TODO: figure out good change rates
+                phosphorus += Math.min(biomass, decomposingBacteria) * Settings.PHOSPHORUS_CHANGE_RATE;
+                phosphorus -= biomass * Settings.PHOSPHORUS_CHANGE_RATE;
+                phosphorus = Math.max(0, phosphorus);
+
+                potassium += Math.min(biomass, decomposingBacteria) * Settings.POTASSIUM_CHANGE_RATE;
+                potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
+                potassium = Math.max(0, potassium);
+
+                //TODO: nitrogen fixation should be calculated diffently (should not be dependant on nitrogen change rate in plnats)
+                nitrogen += Math.min(Math.min(biomass, decomposingBacteria) + nitrogenFixation, nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
+                nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
+                nitrogen = Math.max(0, nitrogen);
+
+                //Spread BioSystem stuff to nearby chunks
+                spreadToChunk(chunk, chunk.xPosition - 1, chunk.zPosition);
+                spreadToChunk(chunk, chunk.xPosition + 1, chunk.zPosition);
+                spreadToChunk(chunk, chunk.xPosition, chunk.zPosition - 1);
+                spreadToChunk(chunk, chunk.xPosition, chunk.zPosition + 1);
 
                 //Send the chunk biomass changes to all clients watching this chunk
                 NetworkHandler.INSTANCE.sendToPlayersWatchingChunk(new MessageBioSystemUpdate(this), (WorldServer) chunk.worldObj, chunk.xPosition, chunk.zPosition);
