@@ -1,6 +1,6 @@
 [
 {
-  "modid": "biota",
+  "modid": "Biota",
   "name": "Biota",
   "description": "Extending Minecraft with life.",
   "version": "${version}",
@@ -11,6 +11,6 @@
   "credits": "",
   "logoFile": "",
   "screenshots": [],
-  "dependencies": []
+  "dependencies": ["AppleCore"]
 }
 ]
