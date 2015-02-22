@@ -90,7 +90,7 @@ public class CommonEventHandler
 
         if (bioSystem != null)
         {
-            float nutrientGrowChance = MathLib.getFittedValue(bioSystem.getLowestNutrientValue(), Settings.NUTRIENT_SHORTAGE_FOR_STOP_GROWTH, Settings.NUTRIENT_AMOUNT_FOR_NORMAL_GROWTH, Settings.NUTRIENT_ABUNDANCE_FOR_MAX_GROWTH);
+            float nutrientGrowChance = MathLib.getFittedValue(bioSystem.getLowestNutrientValue(), Settings.NUTRIENT_AMOUNT_FOR_STOP_GROWTH, Settings.NUTRIENT_AMOUNT_FOR_NORMAL_GROWTH, Settings.NUTRIENT_AMOUNT_FOR_MAX_GROWTH);
 
             int lightValue = event.block.isOpaqueCube() ? WorldHelper.getLightValue(event.world, event.x, event.y + 1, event.z) : WorldHelper.getLightValue(event.world, event.x, event.y, event.z);
             float lightGrowChance = MathLib.getFittedValue(lightValue, Settings.LIGHT_VALUE_FOR_STOP_GROWTH, Settings.LIGHT_VALUE_FOR_NORMAL_GROWTH, Settings.LIGHT_VALUE_FOR_MAX_GROWTH);

@@ -69,7 +69,7 @@ public class Hooks
             //TODO: some plants might handle low nutrient values better, also curve fit this too, light checking uses 0.05 ms per player loaded area, too much?
             float nutrientValue = bioSystem.getLowestNutrientValue();
             int lightValue = block.isOpaqueCube() ? WorldHelper.getLightValue(world, x, y + 1, z) : WorldHelper.getLightValue(world, x, y, z);
-            if (nutrientValue < Settings.NUTRIENT_SHORTAGE_FOR_DEATH || lightValue < Settings.LIGHT_VALUE_FOR_DEATH)
+            if (nutrientValue < Settings.NUTRIENT_AMOUNT_FOR_DEATH || lightValue < Settings.LIGHT_VALUE_FOR_DEATH)
             {
                 //Death to the plants >:c
                 int meta = world.getBlockMetadata(x, y, z);
@@ -90,7 +90,7 @@ public class Hooks
                     world.setBlockToAir(x, y, z);
                 }
             }
-            else if (nutrientValue > Settings.NUTRIENT_ABUNDANCE_FOR_SPREAD && lightValue > Settings.LIGHT_VALUE_FOR_SPREAD)
+            else if (nutrientValue > Settings.NUTRIENT_AMOUNT_FOR_SPREAD && lightValue > Settings.LIGHT_VALUE_FOR_SPREAD)
             {
                 IPlantSpreader spreader = PlantConfig.getPlantSpreader(block);
                 if (spreader != null && spreader.canSpread(world, x, y, z, block) && world.rand.nextFloat() < Settings.PLANT_SPREAD_CHANCE)

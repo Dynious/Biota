@@ -20,23 +20,25 @@ public class Settings
     @ConfigFloatValue(defaultValue = 2.5F, comment = "The random difference in Nitrogen amount per chunk")
     public static float DELTA_NITROGEN;
 
+    @ConfigFloatValue(defaultValue = 0.1F, comment = "The chance plants growth when ticking (1 tick per +- 68 secs) - max 1")
+    public static float PLANT_SPREAD_CHANCE;
     @ConfigFloatValue(defaultValue = 1F, comment = "Maximum plant growth speed (compared to non-modified) - max = 1")
-    public static float MAX_PLANT_GROWTH;
+    public static float PLANT_GROWTH_MAX;
     @ConfigFloatValue(defaultValue = 0.75F, comment = "Normal plant growth speed (compared to non-modified) - max = 1")
-    public static float NORMAL_PLANT_GROWTH;
+    public static float PLANT_GROWTH_NORMAL;
     @ConfigFloatValue(defaultValue = 0F, comment = "Minimal plant growth speed (compared to non-modified) - max = 1")
-    public static float MINIMAL_PLANT_GROWTH;
+    public static float PLANT_GROWTH_MINIMAL;
 
-    @ConfigFloatValue(defaultValue = 1.5F, comment = "Nutrient amount amount needed for plant spread (compared to normal)")
-    public static float NUTRIENT_ABUNDANCE_FOR_SPREAD;
-    @ConfigFloatValue(defaultValue = 1.5F, comment = "Nutrient amount amount needed for plant max growth (compared to normal)")
-    public static float NUTRIENT_ABUNDANCE_FOR_MAX_GROWTH;
-    @ConfigFloatValue(defaultValue = 1.0F, comment = "Nutrient amount amount needed for plant normal growth (compared to normal)")
+    @ConfigFloatValue(defaultValue = 1.5F, comment = "Nutrient amount needed for plant spread (compared to normal)")
+    public static float NUTRIENT_AMOUNT_FOR_SPREAD;
+    @ConfigFloatValue(defaultValue = 1.5F, comment = "Nutrient amount needed for plant max growth (compared to normal)")
+    public static float NUTRIENT_AMOUNT_FOR_MAX_GROWTH;
+    @ConfigFloatValue(defaultValue = 1.0F, comment = "Nutrient amount needed for plant normal growth (compared to normal)")
     public static float NUTRIENT_AMOUNT_FOR_NORMAL_GROWTH;
     @ConfigFloatValue(defaultValue = 0.75F, comment = "Nutrient amount lower than this will stop plant growth (compared to normal)")
-    public static float NUTRIENT_SHORTAGE_FOR_STOP_GROWTH;
+    public static float NUTRIENT_AMOUNT_FOR_STOP_GROWTH;
     @ConfigFloatValue(defaultValue = 0.35F, comment = "Nutrient amount lower than this will kill plants (compared to normal)")
-    public static float NUTRIENT_SHORTAGE_FOR_DEATH;
+    public static float NUTRIENT_AMOUNT_FOR_DEATH;
 
     @ConfigIntValue(defaultValue = 12, comment = "Light amount amount needed for plant spread (0 - 15)")
     public static int LIGHT_VALUE_FOR_SPREAD;
@@ -48,9 +50,6 @@ public class Settings
     public static int LIGHT_VALUE_FOR_STOP_GROWTH;
     @ConfigIntValue(defaultValue = 6, comment = "Light amount lower than this will kill plants (0 - 15)")
     public static int LIGHT_VALUE_FOR_DEATH;
-
-    @ConfigFloatValue(defaultValue = 0.1F, comment = "The chance plants growth when ticking (1 tick per +- 68 secs) - max 1")
-    public static float PLANT_SPREAD_CHANCE;
 
     @ConfigIntValue(defaultValue = 200, comment = "Ticks between updates in biosystems, higher is better for performance, but will make changes show up later")
     public static int TICKS_PER_BIOSYSTEM_UPDATE;
@@ -98,7 +97,7 @@ public class Settings
     @ConfigIntValue(defaultValue = 5, comment = "The chance a grass block will get more worn - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")
     public static int GRASS_WORN_ENTITY_WALK_ON_CHANCE;
 
-    @ConfigIntValue(defaultValue = 5, comment = "The chance a grass block will grow back when ticking (1 tick per +- 68 secs) - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")
+    @ConfigIntValue(defaultValue = 20, comment = "The chance a grass block will grow back when ticking (1 tick per +- 68 secs) - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")
     public static int GRASS_GROW_BACK_CHANCE;
 
     public static void recalculate()
