@@ -4,7 +4,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 import java.util.Map;
 
-@IFMLLoadingPlugin.TransformerExclusions({"com.dynious.biota", "com.google.gson"})
+@IFMLLoadingPlugin.TransformerExclusions({"com.dynious.biota.asm", "com.dynious.biota.lib", "com.google.gson"})
 public class LoadingPlugin implements IFMLLoadingPlugin
 {
     @Override

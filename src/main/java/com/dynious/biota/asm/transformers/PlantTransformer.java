@@ -1,7 +1,11 @@
-package com.dynious.biota.asm;
+package com.dynious.biota.asm.transformers;
 
 import com.dynious.biota.Biota;
 import com.dynious.biota.api.IPlant;
+import com.dynious.biota.asm.CoreTransformer;
+import com.dynious.biota.asm.Hooks;
+import com.dynious.biota.asm.ITransformer;
+import com.dynious.biota.asm.PlantTransformerConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;

@@ -72,6 +72,7 @@ public class ConfigHandler
                 e.printStackTrace();
             }
         }
+        Settings.recalculate();
 
         if (configFile.hasChanged())
             configFile.save();

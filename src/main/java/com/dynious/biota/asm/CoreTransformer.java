@@ -1,5 +1,8 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.asm.transformers.ChunkTransformer;
+import com.dynious.biota.asm.transformers.PlantTransformer;
+import com.dynious.biota.asm.transformers.TreeTransformer;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 
@@ -16,7 +19,8 @@ public class CoreTransformer implements IClassTransformer
                 {
                         new PlantTransformer(),
                         new ChunkTransformer(),
-                        new TreeTransformer()
+                        new TreeTransformer(),
+                        //new GrassTransformer()
                 };
     }
 

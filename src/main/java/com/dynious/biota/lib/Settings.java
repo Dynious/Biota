@@ -59,7 +59,7 @@ public class Settings
     public static int BIOSYSTEM_NUTRIENT_CHANGE_TICKS;
 
     //24000 ticks per MC day. One day for 1.0 change.
-    public static float BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_CHANGE_TICKS;
+    public static float BIOSYSTEM_CHANGE_RATE;
 
     //Mass fraction of nutrients in biomass
     @ConfigFloatValue(defaultValue = 0.001F, comment = "The amount of Phosphorus per biomass value")
@@ -69,22 +69,20 @@ public class Settings
     @ConfigFloatValue(defaultValue = 0.014F, comment = "The amount of Nitrogen per biomass value")
     public static float BIOMASS_NITROGEN_RATE;
     
-    private static float NORMAL_RATE = (float) Math.cbrt(1.0 / (BIOMASS_PHOSPHORUS_RATE * BIOMASS_POTASSIUM_RATE * BIOMASS_NITROGEN_RATE));
-    
-    public static float PHOSPHORUS_CHANGE_RATE = BIOMASS_PHOSPHORUS_RATE * NORMAL_RATE * BIOSYSTEM_CHANGE_RATE;
-    public static float POTASSIUM_CHANGE_RATE = BIOMASS_POTASSIUM_RATE * NORMAL_RATE * BIOSYSTEM_CHANGE_RATE;
-    public static float NITROGEN_CHANGE_RATE = BIOMASS_NITROGEN_RATE * NORMAL_RATE * BIOSYSTEM_CHANGE_RATE;
+    public static float PHOSPHORUS_CHANGE_RATE;
+    public static float POTASSIUM_CHANGE_RATE;
+    public static float NITROGEN_CHANGE_RATE;
 
     @ConfigFloatValue(defaultValue = 10F, comment = "The speed at which bacteria spread compared to the average change of nutrients")
     public static float BACTERIA_CHANGE_AMOUNT;
     
-    public static float BACTERIA_CHANGE_RATE = BACTERIA_CHANGE_AMOUNT*BIOSYSTEM_CHANGE_RATE;
+    public static float BACTERIA_CHANGE_RATE;
 
     @ConfigIntValue(defaultValue = 168000, comment = "The amount of ticks for full spread is nutrient values")
     public static int BIOSYSTEM_NUTRIENT_SPREAD_TICKS;
 
     //168000 ticks per MC week. One week for 1.0 change in spread.
-    public static float BIOSYSTEM_SPREAD_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_SPREAD_TICKS;
+    public static float BIOSYSTEM_SPREAD_RATE;
 
     // Bacteria will start to die when there's this much biomass compared to what they can consume at max
     @ConfigFloatValue(defaultValue = 0.75F, comment = "Bacteria will start to die when there's this much biomass compared to what they can consume at max")
@@ -96,4 +94,23 @@ public class Settings
     public static float BONEMEAL_POTASSIUM;
     @ConfigFloatValue(defaultValue = 0.4F, comment = "The amount Nitrogen in Bonemeal")
     public static float BONEMEAL_NITROGEN;
+
+    @ConfigIntValue(defaultValue = 5, comment = "The chance a grass block will get more worn - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")
+    public static int GRASS_WORN_ENTITY_WALK_ON_CHANCE;
+
+    @ConfigIntValue(defaultValue = 5, comment = "The chance a grass block will grow back when ticking (1 tick per +- 68 secs) - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")
+    public static int GRASS_GROW_BACK_CHANCE;
+
+    public static void recalculate()
+    {
+        BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_CHANGE_TICKS;
+
+        float normalRate = (float) Math.cbrt(1.0 / (BIOMASS_PHOSPHORUS_RATE * BIOMASS_POTASSIUM_RATE * BIOMASS_NITROGEN_RATE));
+        PHOSPHORUS_CHANGE_RATE = BIOMASS_PHOSPHORUS_RATE * normalRate * BIOSYSTEM_CHANGE_RATE;
+        POTASSIUM_CHANGE_RATE = BIOMASS_POTASSIUM_RATE * normalRate * BIOSYSTEM_CHANGE_RATE;
+        NITROGEN_CHANGE_RATE = BIOMASS_NITROGEN_RATE * normalRate * BIOSYSTEM_CHANGE_RATE;
+
+        BACTERIA_CHANGE_RATE = BACTERIA_CHANGE_AMOUNT*BIOSYSTEM_CHANGE_RATE;
+        BIOSYSTEM_SPREAD_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_SPREAD_TICKS;
+    }
 }

@@ -1,6 +1,9 @@
-package com.dynious.biota.asm;
+package com.dynious.biota.asm.transformers;
 
 import com.dynious.biota.Biota;
+import com.dynious.biota.asm.CoreTransformer;
+import com.dynious.biota.asm.Hooks;
+import com.dynious.biota.asm.ITransformer;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
 
