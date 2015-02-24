@@ -4,14 +4,10 @@ import com.dynious.biota.asm.transformers.ChunkTransformer;
 import com.dynious.biota.asm.transformers.PlantTransformer;
 import com.dynious.biota.asm.transformers.TreeTransformer;
 import net.minecraft.launchwrapper.IClassTransformer;
-import net.minecraft.launchwrapper.LaunchClassLoader;
-
-import java.io.IOException;
 
 public class CoreTransformer implements IClassTransformer
 {
     private static ITransformer[] transformers;
-    private static Boolean obfuscated = null;
 
     static
     {
@@ -19,26 +15,8 @@ public class CoreTransformer implements IClassTransformer
                 {
                         new PlantTransformer(),
                         new ChunkTransformer(),
-                        new TreeTransformer(),
-                        //new GrassTransformer()
+                        new TreeTransformer()
                 };
-    }
-
-    public static boolean isObfurscated()
-    {
-        if (obfuscated == null)
-        {
-            try
-            {
-                byte[] bytes = ((LaunchClassLoader) CoreTransformer.class.getClassLoader()).getClassBytes("net.minecraft.world.World");
-                obfuscated = bytes == null;
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        return obfuscated;
     }
 
     @Override

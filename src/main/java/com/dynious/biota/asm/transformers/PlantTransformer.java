@@ -2,15 +2,17 @@ package com.dynious.biota.asm.transformers;
 
 import com.dynious.biota.Biota;
 import com.dynious.biota.api.IPlant;
-import com.dynious.biota.asm.CoreTransformer;
 import com.dynious.biota.asm.Hooks;
 import com.dynious.biota.asm.ITransformer;
+import com.dynious.biota.asm.MethodFieldObfHelper;
 import com.dynious.biota.asm.PlantTransformerConfig;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import squeek.asmhelper.applecore.ObfHelper;
+import squeek.asmhelper.applecore.ObfRemappingClassWriter;
 
 import java.util.Iterator;
 
@@ -18,17 +20,17 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class PlantTransformer implements ITransformer
 {
-    private final static String ADDED = CoreTransformer.isObfurscated() ? "b" : "onBlockAdded";
-    private final static String ADDED_DESC = CoreTransformer.isObfurscated() ? "(Lahb;III)V" : "(Lnet/minecraft/world/World;III)V";
+    private final static String ADDED = ObfHelper.isObfuscated() ? MethodFieldObfHelper.method("net.minecraft.block.Block", "func_149726_b") : "onBlockAdded";
+    private final static String ADDED_DESC = ObfHelper.desc("(Lnet/minecraft/world/World;III)V");
 
-    private final static String REMOVED = CoreTransformer.isObfurscated() ? "a" : "breakBlock";
-    private final static String REMOVED_DESC = CoreTransformer.isObfurscated() ? "(Lahb;IIILaji;I)V" : "(Lnet/minecraft/world/World;IIILnet/minecraft/block/Block;I)V";
+    private final static String REMOVED = ObfHelper.isObfuscated() ? MethodFieldObfHelper.method("net.minecraft.block.Block", "func_149749_a") : "breakBlock";
+    private final static String REMOVED_DESC = ObfHelper.desc("(Lnet/minecraft/world/World;IIILnet/minecraft/block/Block;I)V");
 
-    private final static String COLOR = CoreTransformer.isObfurscated() ? "d" : "colorMultiplier";
-    private final static String COLOR_DESC = CoreTransformer.isObfurscated() ? "(Lahl;III)I" : "(Lnet/minecraft/world/IBlockAccess;III)I";
+    private final static String COLOR = ObfHelper.isObfuscated() ? MethodFieldObfHelper.method("net.minecraft.block.Block", "func_149720_d") : "colorMultiplier";
+    private final static String COLOR_DESC = ObfHelper.desc("(Lnet/minecraft/world/IBlockAccess;III)I");
 
-    private final static String TICK = CoreTransformer.isObfurscated() ? "a" : "updateTick";
-    private final static String TICK_DESC = CoreTransformer.isObfurscated() ? "(Lahb;IIILjava/util/Random;)V" : "(Lnet/minecraft/world/World;IIILjava/util/Random;)V";
+    private final static String TICK = ObfHelper.isObfuscated() ? MethodFieldObfHelper.method("net.minecraft.block.Block", "func_149674_a") : "updateTick";
+    private final static String TICK_DESC = ObfHelper.desc("(Lnet/minecraft/world/World;IIILjava/util/Random;)V");
 
     @Override
     public String[] getClasses()
@@ -67,7 +69,7 @@ public class PlantTransformer implements ITransformer
                 list.add(new VarInsnNode(ILOAD, 2));
                 list.add(new VarInsnNode(ILOAD, 3));
                 list.add(new VarInsnNode(ILOAD, 4));
-                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockAdded", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
+                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockAdded", ObfHelper.desc("(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V"), false));
 
                 methodNode.instructions.insert(list);
             }
@@ -82,7 +84,7 @@ public class PlantTransformer implements ITransformer
                 list.add(new VarInsnNode(ILOAD, 2));
                 list.add(new VarInsnNode(ILOAD, 3));
                 list.add(new VarInsnNode(ILOAD, 4));
-                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
+                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", ObfHelper.desc("(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V"), false));
 
                 methodNode.instructions.insert(list);
             }
@@ -99,7 +101,7 @@ public class PlantTransformer implements ITransformer
 
                         list.add(new VarInsnNode(ILOAD, 2));
                         list.add(new VarInsnNode(ILOAD, 4));
-                        list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "getColor", "(III)I", false));
+                        list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "getColor", ObfHelper.desc("(III)I"), false));
 
                         methodNode.instructions.insertBefore(node, list);
                     }
@@ -115,7 +117,7 @@ public class PlantTransformer implements ITransformer
                 list.add(new VarInsnNode(ILOAD, 2));
                 list.add(new VarInsnNode(ILOAD, 3));
                 list.add(new VarInsnNode(ILOAD, 4));
-                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false));
+                list.add(new MethodInsnNode(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", ObfHelper.desc("(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V"), false));
 
                 methodNode.instructions.insert(list);
             }
@@ -132,7 +134,7 @@ public class PlantTransformer implements ITransformer
             mv.visitVarInsn(ILOAD, 2);
             mv.visitVarInsn(ILOAD, 3);
             mv.visitVarInsn(ILOAD, 4);
-            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockAdded", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockAdded", ObfHelper.desc("(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V"), false);
 
             //Call super
             mv.visitVarInsn(ALOAD, 0);
@@ -157,7 +159,7 @@ public class PlantTransformer implements ITransformer
             mv.visitVarInsn(ILOAD, 2);
             mv.visitVarInsn(ILOAD, 3);
             mv.visitVarInsn(ILOAD, 4);
-            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantBlockRemoved", ObfHelper.desc("(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V"), false);
 
             //Call super
             mv.visitVarInsn(ALOAD, 0);
@@ -203,7 +205,7 @@ public class PlantTransformer implements ITransformer
             mv.visitVarInsn(ILOAD, 2);
             mv.visitVarInsn(ILOAD, 3);
             mv.visitVarInsn(ILOAD, 4);
-            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", CoreTransformer.isObfurscated() ? "(Laji;Lahb;III)V" : "(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V", false);
+            mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(Hooks.class), "onPlantTick", ObfHelper.desc("(Lnet/minecraft/block/Block;Lnet/minecraft/world/World;III)V"), false);
 
             mv.visitVarInsn(ALOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
@@ -218,7 +220,7 @@ public class PlantTransformer implements ITransformer
 
         }
 
-        ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter classWriter = new ObfRemappingClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);
         return classWriter.toByteArray();
     }
