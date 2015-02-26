@@ -1,5 +1,6 @@
 package com.dynious.biota.asm;
 
+import com.dynious.biota.asm.transformers.BlockTransformer;
 import com.dynious.biota.asm.transformers.ChunkTransformer;
 import com.dynious.biota.asm.transformers.PlantTransformer;
 import com.dynious.biota.asm.transformers.TreeTransformer;
@@ -15,7 +16,8 @@ public class CoreTransformer implements IClassTransformer
                 {
                         new PlantTransformer(),
                         new ChunkTransformer(),
-                        new TreeTransformer()
+                        new TreeTransformer(),
+                        new BlockTransformer()
                 };
     }
 

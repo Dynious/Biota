@@ -79,7 +79,7 @@ public interface IBiotaAPI
      * @param nitrogen The amount of Nitrogen the should be added to the chunk
      * @return If adding the nutrients succeeded
      */
-    public boolean addNutrientsToBioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen);
+    public boolean addNutrientsToBioSystem(World world, Chunk chunk, float phosphorus, float potassium, float nitrogen);
 
     /**
      * This will return the color multiplier for your block to change the color when nutrient values get low.

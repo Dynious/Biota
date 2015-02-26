@@ -29,7 +29,7 @@ public class DefaultPlantSpreader implements IPlantSpreader
         int yStart = random.nextInt(spreadSize);
         int zStart = random.nextInt(spreadSize);
 
-        for (int dX = 0; dX < spreadSize + 1; dX++)
+        for (int dX = 0; dX < spreadSize; dX++)
         {
             for (int dY = 0; dY < spreadSize; dY++)
             {

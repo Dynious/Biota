@@ -22,6 +22,6 @@ public class CreativeTabBiota extends CreativeTabs
     @Override
     public ItemStack getIconItemStack()
     {
-        return new ItemStack(ModBlocks.blockClover);
+        return new ItemStack(ModBlocks.clover);
     }
 }

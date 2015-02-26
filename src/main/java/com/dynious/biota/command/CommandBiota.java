@@ -52,7 +52,7 @@ public class CommandBiota extends CommandBase
             {
                 World world = icommandsender.getEntityWorld();
                 Chunk chunk = world.getChunkFromBlockCoords(icommandsender.getPlayerCoordinates().posX, icommandsender.getPlayerCoordinates().posZ);
-                BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+                BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
                 if (bioSystem != null)
                 {
                     icommandsender.addChatMessage(new ChatComponentText(String.format("Phosphorus: %f, Potassium: %f, Nitrogen %f", bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen())));
@@ -64,7 +64,7 @@ public class CommandBiota extends CommandBase
                 {
                     World world = icommandsender.getEntityWorld();
                     Chunk chunk = world.getChunkFromBlockCoords(icommandsender.getPlayerCoordinates().posX, icommandsender.getPlayerCoordinates().posZ);
-                    BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+                    BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
                     if (bioSystem != null)
                     {
                         bioSystem.setPhosphorus((float) parseDouble(icommandsender, args[1]));
@@ -77,31 +77,35 @@ public class CommandBiota extends CommandBase
             }
             else if (commandName.equalsIgnoreCase(Commands.GET_LOWEST_IN_WORLD))
             {
-                float lowest = Float.MAX_VALUE;
-                int x = 0, z = 0;
-                Iterator<BioSystem> iterator = BioSystemHandler.iterator();
-                while (iterator.hasNext())
+                BioSystemHandler handler = BioSystemHandler.get(icommandsender.getEntityWorld());
+                if (handler != null)
                 {
-                    BioSystem bioSystem = iterator.next();
-                    Chunk chunk = bioSystem.chunkReference.get();
-                    if (chunk != null && chunk.worldObj.equals(icommandsender.getEntityWorld()))
+                    float lowest = Float.MAX_VALUE;
+                    int x = 0, z = 0;
+                    Iterator<BioSystem> iterator = handler.iterator();
+                    while (iterator.hasNext())
                     {
-                        float value = bioSystem.getLowestNutrientValue();
-                        if (value < lowest)
+                        BioSystem bioSystem = iterator.next();
+                        Chunk chunk = bioSystem.chunkReference.get();
+                        if (chunk != null)
                         {
-                            lowest = value;
-                            x = chunk.xPosition;
-                            z = chunk.zPosition;
+                            float value = bioSystem.getLowestNutrientValue();
+                            if (value < lowest)
+                            {
+                                lowest = value;
+                                x = chunk.xPosition;
+                                z = chunk.zPosition;
+                            }
                         }
                     }
+                    icommandsender.addChatMessage(new ChatComponentText(String.format("Lowest nutrient value in loaded world is %f in chunk at %d %d", lowest, x, z)));
                 }
-                icommandsender.addChatMessage(new ChatComponentText(String.format("Lowest nutrient value in loaded world is %f in chunk at %d %d", lowest, x, z)));
             }
             else if (commandName.equalsIgnoreCase(Commands.GET_BIOSYSTEM))
             {
                 World world = icommandsender.getEntityWorld();
                 Chunk chunk = world.getChunkFromBlockCoords(icommandsender.getPlayerCoordinates().posX, icommandsender.getPlayerCoordinates().posZ);
-                BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+                BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
                 if (bioSystem != null)
                 {
                     icommandsender.addChatMessage(new ChatComponentText(String.format("Biomass: %f, Nitrogen Fixation: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", bioSystem.getBiomass(), bioSystem.getNitrogenFixation(), bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen(), bioSystem.getDecomposingBacteria(), bioSystem.getNitrifyingBacteria())));
@@ -111,7 +115,7 @@ public class CommandBiota extends CommandBase
             {
                 World world = icommandsender.getEntityWorld();
                 Chunk chunk = world.getChunkFromBlockCoords(icommandsender.getPlayerCoordinates().posX, icommandsender.getPlayerCoordinates().posZ);
-                BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+                BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
                 if (bioSystem != null)
                 {
                     BioSystemInitThread.addBioSystem(bioSystem);

@@ -63,9 +63,9 @@ public class BiotaAPI implements IBiotaAPI
     }
 
     @Override
-    public boolean addNutrientsToBioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
+    public boolean addNutrientsToBioSystem(World world, Chunk chunk, float phosphorus, float potassium, float nitrogen)
     {
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
         if (bioSystem != null)
         {
             bioSystem.setPhosphorus(bioSystem.getPhosphorus() + phosphorus);

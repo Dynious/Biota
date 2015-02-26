@@ -22,27 +22,35 @@ public class Hooks
     //TODO: Fix not all biomass added on generation
     public static void onPlantBlockAdded(Block block, World world, int x, int y, int z)
     {
-        BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
-        float value = PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
-        BioSystemHandler.biomassChangeMap.adjustOrPutValue(chunkCoords, value, value);
-
-        if (block instanceof INitrogenFixator)
+        BioSystemHandler handler = BioSystemHandler.get(world);
+        if (handler != null)
         {
-            float fixation = ((INitrogenFixator) block).getNitrogenFixationAmount(world, x, y, z);
-            BioSystemHandler.nitrogenFixationChangeMap.adjustOrPutValue(chunkCoords, fixation, fixation);
+            BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
+            float value = PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
+            handler.biomassChangeMap.adjustOrPutValue(chunkCoords, value, value);
+
+            if (block instanceof INitrogenFixator)
+            {
+                float fixation = ((INitrogenFixator) block).getNitrogenFixationAmount(world, x, y, z);
+                handler.nitrogenFixationChangeMap.adjustOrPutValue(chunkCoords, fixation, fixation);
+            }
         }
     }
 
     public static void onPlantBlockRemoved(Block block, World world, int x, int y, int z)
     {
-        BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
-        float value = -PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
-        BioSystemHandler.biomassChangeMap.adjustOrPutValue(chunkCoords, value, value);
-
-        if (block instanceof INitrogenFixator)
+        BioSystemHandler handler = BioSystemHandler.get(world);
+        if (handler != null)
         {
-            float fixation = -((INitrogenFixator) block).getNitrogenFixationAmount(world, x, y, z);
-            BioSystemHandler.nitrogenFixationChangeMap.adjustOrPutValue(chunkCoords, fixation, fixation);
+            BioSystemHandler.ChunkCoords chunkCoords = new BioSystemHandler.ChunkCoords(world, x >> 4, z >> 4);
+            float value = -PlantConfig.getPlantBlockBiomassValue(block, world.getBlockMetadata(x, y, z));
+            handler.biomassChangeMap.adjustOrPutValue(chunkCoords, value, value);
+
+            if (block instanceof INitrogenFixator)
+            {
+                float fixation = -((INitrogenFixator) block).getNitrogenFixationAmount(world, x, y, z);
+                handler.nitrogenFixationChangeMap.adjustOrPutValue(chunkCoords, fixation, fixation);
+            }
         }
     }
 
@@ -62,7 +70,7 @@ public class Hooks
     public static void onPlantTick(Block block, World world, int x, int y, int z)
     {
         Chunk chunk = world.getChunkFromBlockCoords(x, z);
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
 
         if (bioSystem != null)
         {
@@ -107,9 +115,9 @@ public class Hooks
 
     public static void postChunkPopulated(Chunk chunk)
     {
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk.worldObj, chunk);
         if (bioSystem != null)
-            BioSystemHandler.stabilizeList.add(bioSystem);
+            BioSystemHandler.get(chunk.worldObj).stabilizeList.add(bioSystem);
     }
 
     public static void onPlantGrowth(World world, int x, int y, int z, Block block, int meta)
@@ -118,7 +126,7 @@ public class Hooks
         if (biomass != 0F)
         {
             Chunk chunk = world.getChunkFromBlockCoords(x, z);
-            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
 
             if (bioSystem != null)
             {

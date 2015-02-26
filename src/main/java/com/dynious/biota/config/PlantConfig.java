@@ -30,7 +30,7 @@ public class PlantConfig
     public static void init()
     {
         Loader.load();
-        IBiotaAPI.API.registerDeadPlant(ModBlocks.getGrassBlock(), -1, Blocks.dirt, -1);
+        IBiotaAPI.API.registerDeadPlant(ModBlocks.grass, -1, Blocks.dirt, -1);
         IBiotaAPI.API.registerDeadPlant(Blocks.tallgrass, -1, Blocks.deadbush, -1);
 
         IBiotaAPI.API.registerPlantSpreader(Blocks.tallgrass, new TallGrassSpreader());

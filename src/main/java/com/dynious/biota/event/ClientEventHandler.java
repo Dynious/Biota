@@ -18,6 +18,6 @@ public class ClientEventHandler
     public void textureEvent(TextureStitchEvent.Pre event)
     {
         if (event.map.getTextureType() == 0)
-            ModBlocks.getGrassBlock().registerBlockIcons(event.map);
+            ModBlocks.grass.registerBlockIcons(event.map);
     }
 }

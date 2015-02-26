@@ -215,7 +215,7 @@ public class BioSystem
     {
         if (world.chunkExists(x, z))
         {
-            BioSystem bioSystem = BioSystemHandler.getBioSystem(world.getChunkFromChunkCoords(x, z));
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(world, world.getChunkFromChunkCoords(x, z));
             if (bioSystem != null)
                 bioSystem.setStableBacteriaValues();
         }
@@ -298,7 +298,7 @@ public class BioSystem
         if (chunk.worldObj.chunkExists(xPos, zPos))
         {
             Chunk chunk1 = chunk.worldObj.getChunkFromChunkCoords(xPos, zPos);
-            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk1);
+            BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk.worldObj, chunk1);
             if (bioSystem != null)
                 spread(bioSystem);
             else

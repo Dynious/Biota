@@ -34,7 +34,7 @@ public class CommonEventHandler
     {
         //Chunk read from disk
         NBTTagCompound compound = event.getData().getCompoundTag("Biota");
-        BioSystemHandler.onChunkLoaded(event.getChunk(), compound);
+        BioSystemHandler.onChunkLoaded(event.world, event.getChunk(), compound);
     }
 
     @SubscribeEvent
@@ -42,7 +42,7 @@ public class CommonEventHandler
     {
         if (!event.getChunk().worldObj.isRemote)
         {
-            BioSystemHandler.onChunkLoaded(event.getChunk());
+            BioSystemHandler.onChunkLoaded(event.world, event.getChunk());
         }
     }
 
@@ -50,7 +50,7 @@ public class CommonEventHandler
     public void onChuckDataSave(ChunkDataEvent.Save event)
     {
         //Chunk saved to disk
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(event.getChunk());
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(event.world, event.getChunk());
         if (bioSystem != null)
         {
             NBTTagCompound compound = new NBTTagCompound();
@@ -58,15 +58,17 @@ public class CommonEventHandler
             event.getData().setTag("Biota", compound);
         }
         if (!event.getChunk().isChunkLoaded)
-            BioSystemHandler.onChunkUnload(event.getChunk());
+            BioSystemHandler.onChunkUnload(event.world, event.getChunk());
     }
 
     @SubscribeEvent
-    public void tick(TickEvent.ServerTickEvent event)
+    public void tick(TickEvent.WorldTickEvent event)
     {
         if (event.phase == TickEvent.Phase.END)
         {
-            BioSystemHandler.update();
+            BioSystemHandler handler = BioSystemHandler.get(event.world);
+            if (handler != null)
+                handler.update();
         }
     }
 
@@ -75,7 +77,7 @@ public class CommonEventHandler
     public void onPlayWatchChunk(ChunkWatchEvent.Watch event)
     {
         Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(event.player.worldObj, chunk);
         if (bioSystem != null)
         {
             NetworkHandler.INSTANCE.sendTo(new MessageBioSystemUpdate(bioSystem), event.player);
@@ -86,7 +88,7 @@ public class CommonEventHandler
     public void allowPlantGrowth(PlantGrowthEvent.AllowGrowthTick event)
     {
         Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(event.world, chunk);
 
         if (bioSystem != null)
         {
@@ -106,7 +108,7 @@ public class CommonEventHandler
     public void onPlantGrowth(PlantGrowthEvent.GrowthTick event)
     {
         Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(event.world, chunk);
 
         if (bioSystem != null)
         {
@@ -130,7 +132,7 @@ public class CommonEventHandler
     public void onBonemealUsedEvent(BonemealEvent event)
     {
         Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
-        if (IBiotaAPI.API.addNutrientsToBioSystem(chunk, Settings.BONEMEAL_PHOSPHORUS, Settings.BONEMEAL_POTASSIUM, Settings.BONEMEAL_NITROGEN))
+        if (IBiotaAPI.API.addNutrientsToBioSystem(event.world, chunk, Settings.BONEMEAL_PHOSPHORUS, Settings.BONEMEAL_POTASSIUM, Settings.BONEMEAL_NITROGEN))
             event.setResult(Event.Result.ALLOW);
         else
             event.setCanceled(true);
@@ -146,7 +148,7 @@ public class CommonEventHandler
     public void onFertilization(FertilizationEvent.Fertilized event)
     {
         Chunk chunk = event.world.getChunkFromBlockCoords(event.x, event.z);
-        BioSystem bioSystem = BioSystemHandler.getBioSystem(chunk);
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(event.world, chunk);
 
         if (bioSystem != null)
         {

@@ -12,23 +12,34 @@ import java.util.*;
 
 public class BioSystemHandler
 {
-    private static Map<Chunk, BioSystem> bioSystemMap = new WeakHashMap<Chunk, BioSystem>();
-    public static TObjectFloatMap<ChunkCoords> biomassChangeMap = new TObjectFloatHashMap<ChunkCoords>();
-    public static TObjectFloatMap<ChunkCoords> nitrogenFixationChangeMap = new TObjectFloatHashMap<ChunkCoords>();
-    public static List<BioSystem> stabilizeList = new ArrayList<BioSystem>();
+    private static WeakHashMap<World, BioSystemHandler> handlers = new WeakHashMap<World, BioSystemHandler>();
 
-    public static void onChunkLoaded(Chunk chunk, NBTTagCompound compound)
+    private Map<Chunk, BioSystem> bioSystemMap = new WeakHashMap<Chunk, BioSystem>();
+    public TObjectFloatMap<ChunkCoords> biomassChangeMap = new TObjectFloatHashMap<ChunkCoords>();
+    public TObjectFloatMap<ChunkCoords> nitrogenFixationChangeMap = new TObjectFloatHashMap<ChunkCoords>();
+    public List<BioSystem> stabilizeList = new ArrayList<BioSystem>();
+
+    public static void onChunkLoaded(World world, Chunk chunk, NBTTagCompound compound)
     {
         assert chunk != null;
+
+        BioSystemHandler handler;
+        if (!handlers.containsKey(world))
+        {
+            handler = new BioSystemHandler();
+            handlers.put(world, handler);
+        }
+        else
+            handler = handlers.get(world);
 
         BioSystem bioSystem;
 
         if (compound == null || compound.hasNoTags())
         {
-            if (bioSystemMap.containsKey(chunk))
+            if (handler.bioSystemMap.containsKey(chunk))
             {
                 //We already have this chunk loaded, but apparently it changed, we'll need to recheck it, but keep the nutrients for minimal loss
-                BioSystem bioSystem1 = bioSystemMap.remove(chunk);
+                BioSystem bioSystem1 = handler.bioSystemMap.remove(chunk);
                 bioSystem = new BioSystem(chunk, bioSystem1.getPhosphorus(), bioSystem1.getPotassium(), bioSystem1.getNitrogen());
                 BioSystemInitThread.addBioSystem(bioSystem);
             }
@@ -44,31 +55,55 @@ public class BioSystemHandler
             bioSystem = BioSystem.loadFromNBT(chunk, compound);
         }
 
-        bioSystemMap.put(chunk, bioSystem);
+        handler.bioSystemMap.put(chunk, bioSystem);
     }
 
-    public static void onChunkLoaded(Chunk chunk)
+    public static void onChunkLoaded(World world, Chunk chunk)
     {
-        if (!bioSystemMap.containsKey(chunk))
-            bioSystemMap.put(chunk, new BioSystem(chunk));
+        BioSystemHandler handler;
+        if (!handlers.containsKey(world))
+        {
+            handler = new BioSystemHandler();
+            handlers.put(world, handler);
+        }
+        else
+            handler = handlers.get(world);
+
+        if (!handler.bioSystemMap.containsKey(chunk))
+            handler.bioSystemMap.put(chunk, new BioSystem(chunk));
     }
 
-    public static void onChunkUnload(Chunk chunk)
+    public static void onChunkUnload(World world, Chunk chunk)
     {
-        bioSystemMap.remove(chunk);
+        BioSystemHandler handler = handlers.get(world);
+        if (handler != null)
+            handler.bioSystemMap.remove(chunk);
     }
 
-    public static BioSystem getBioSystem(Chunk chunk)
+    public static BioSystemHandler get(World world)
+    {
+        return handlers.get(world);
+    }
+
+    public static BioSystem getBioSystem(World world, Chunk chunk)
+    {
+        BioSystemHandler handler = handlers.get(world);
+        if (handler != null)
+            return handler.getBioSystem(chunk);
+        return null;
+    }
+
+    public BioSystem getBioSystem(Chunk chunk)
     {
         return bioSystemMap.get(chunk);
     }
 
-    public static Iterator<BioSystem> iterator()
+    public Iterator<BioSystem> iterator()
     {
         return bioSystemMap.values().iterator();
     }
 
-    public static void update()
+    public void update()
     {
         biomassChangeMap.forEachEntry(BiomassProcedure.INSTANCE);
         biomassChangeMap.clear();
@@ -84,7 +119,7 @@ public class BioSystemHandler
                 bioSystem.setStableBacteriaValuesNearChunk();
         }
 
-        Iterator<BioSystem> iterator = BioSystemHandler.iterator();
+        Iterator<BioSystem> iterator = iterator();
         while (iterator.hasNext())
         {
             iterator.next().update();
@@ -140,7 +175,7 @@ public class BioSystemHandler
         public boolean execute(ChunkCoords coords, float amount)
         {
             Chunk chunk = coords.world.getChunkFromChunkCoords(coords.x, coords.z);
-            BioSystem bioSystem = getBioSystem(chunk);
+            BioSystem bioSystem = getBioSystem(coords.world, chunk);
             if (bioSystem != null)
             {
                 bioSystem.addBiomass(amount);
@@ -165,7 +200,7 @@ public class BioSystemHandler
         public boolean execute(ChunkCoords coords, float amount)
         {
             Chunk chunk = coords.world.getChunkFromChunkCoords(coords.x, coords.z);
-            BioSystem bioSystem = getBioSystem(chunk);
+            BioSystem bioSystem = getBioSystem(coords.world, chunk);
             if (bioSystem != null)
             {
                 bioSystem.addNitrogenFixation(amount);

@@ -26,6 +26,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     {
         super(material);
         this.setTickRandomly(true);
+        this.setStepSound(soundTypeGrass);
         float f = 0.2F;
         this.setBlockBounds(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, f * 3.0F, 0.5F + f);
         IBiotaAPI.API.registerPlantValue(this, biomass);
@@ -65,6 +66,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     /**
      * Checks to see if its valid to put this block at the specified coordinates. Args: world, x, y, z
      */
+    @Override
     public boolean canPlaceBlockAt(World world, int x, int y, int z)
     {
         return super.canPlaceBlockAt(world, x, y, z) && this.canBlockStay(world, x, y, z);
@@ -74,6 +76,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
      * Lets the block know when one of its neighbor changes. Doesn't know which neighbor changed (coordinates passed are
      * their own) Args: x, y, z, neighbor Block
      */
+    @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock)
     {
         super.onNeighborBlockChange(world, x, y, z, neighborBlock);
@@ -95,6 +98,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     /**
      * Can this block stay at this position.  Similar to canPlaceBlockAt except gets checked often with plants.
      */
+    @Override
     public boolean canBlockStay(World world, int x, int y, int z)
     {
         return  world.getBlock(x, y - 1, z).canSustainPlant(world, x, y, z - 1, ForgeDirection.UP, this);
@@ -104,6 +108,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
      * Returns a bounding box from the pool of bounding boxes (this means this box can change after the pool has been
      * cleared to be reused)
      */
+    @Override
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z)
     {
         return null;
@@ -113,6 +118,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
      * Is this block (a) opaque and (b) a full 1m cube?  This determines whether or not to render the shared face of two
      * adjacent blocks and also whether the player can attach torches, redstone wire, etc to this block.
      */
+    @Override
     public boolean isOpaqueCube()
     {
         return false;
@@ -121,6 +127,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     /**
      * If this block doesn't render as an ordinary block it will return False (examples: signs, buttons, stairs, etc)
      */
+    @Override
     public boolean renderAsNormalBlock()
     {
         return false;
@@ -129,6 +136,7 @@ public class BlockBiotaPlant extends BlockBiota implements IPlant, IPlantable
     /**
      * The type of render function that is called for this block
      */
+    @Override
     public int getRenderType()
     {
         return 1;

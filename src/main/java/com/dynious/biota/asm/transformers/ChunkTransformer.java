@@ -1,6 +1,5 @@
 package com.dynious.biota.asm.transformers;
 
-import com.dynious.biota.Biota;
 import com.dynious.biota.asm.Hooks;
 import com.dynious.biota.asm.ITransformer;
 import com.dynious.biota.asm.MethodFieldObfHelper;
@@ -29,7 +28,7 @@ public class ChunkTransformer implements ITransformer
     @Override
     public byte[] transform(String transformedName, byte[] clazz)
     {
-        Biota.logger.debug("Transforming: " + transformedName);
+        //Biota.logger.debug("Transforming: " + transformedName);
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(clazz);
         classReader.accept(classNode, 0);
