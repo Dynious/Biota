@@ -66,9 +66,11 @@ public class CommonEventHandler
     {
         if (event.phase == TickEvent.Phase.END)
         {
+            event.world.theProfiler.startSection("bioSystem");
             BioSystemHandler handler = BioSystemHandler.get(event.world);
             if (handler != null)
                 handler.update();
+            event.world.theProfiler.endSection();
         }
     }
 

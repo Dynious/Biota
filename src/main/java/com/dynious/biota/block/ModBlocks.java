@@ -7,27 +7,22 @@ public class ModBlocks
 {
     public static BlockNewGrass grass = new BlockNewGrass();
 
-    public static BlockNitrogenFixingPlant alfafla;
-    public static BlockNitrogenFixingPlant clover;
-    public static BlockNitrogenFixingPlant fennugreek;
-    public static BlockNitrogenFixingPlant lupin;
-    public static BlockNitrogenFixingPlant peanut;
-    public static BlockNitrogenFixingPlant rooibos;
+    public static BlockNitrogenFixingPlant[] plants = new BlockNitrogenFixingPlant[6];
 
     public static void init()
     {
-        alfafla = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.ALFAFLA);
-        clover = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.CLOVER);
-        fennugreek = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.FENNUGREEK);
-        lupin = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.LUPIN);
-        peanut = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.PEANUT);
-        rooibos = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.ROOIBOS);
+        plants[0] = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.ALFAFLA);
+        plants[1] = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.CLOVER);
+        plants[2] = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.FENUGREEK);
+        plants[3] = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.LUPIN);
+        plants[4] = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.PEANUT);
+        plants[5] = new BlockNitrogenFixingPlant(0.5F, 1.0F, Names.ROOIBOS);
 
-        GameRegistry.registerBlock(alfafla, Names.ALFAFLA);
-        GameRegistry.registerBlock(clover, Names.CLOVER);
-        GameRegistry.registerBlock(fennugreek, Names.FENNUGREEK);
-        GameRegistry.registerBlock(lupin, Names.LUPIN);
-        GameRegistry.registerBlock(peanut, Names.PEANUT);
-        GameRegistry.registerBlock(rooibos, Names.ROOIBOS);
+        GameRegistry.registerBlock(plants[0], Names.ALFAFLA);
+        GameRegistry.registerBlock(plants[1], Names.CLOVER);
+        GameRegistry.registerBlock(plants[2], Names.FENUGREEK);
+        GameRegistry.registerBlock(plants[3], Names.LUPIN);
+        GameRegistry.registerBlock(plants[4], Names.PEANUT);
+        GameRegistry.registerBlock(plants[5], Names.ROOIBOS);
     }
 }

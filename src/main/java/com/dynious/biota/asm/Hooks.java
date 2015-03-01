@@ -69,6 +69,7 @@ public class Hooks
 
     public static void onPlantTick(Block block, World world, int x, int y, int z)
     {
+        world.theProfiler.startSection("plantTick");
         Chunk chunk = world.getChunkFromBlockCoords(x, z);
         BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
 
@@ -111,6 +112,7 @@ public class Hooks
                 }
             }
         }
+        world.theProfiler.endSection();
     }
 
     public static void postChunkPopulated(Chunk chunk)

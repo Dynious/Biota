@@ -100,6 +100,9 @@ public class Settings
     @ConfigIntValue(defaultValue = 20, comment = "The chance a grass block will grow back when ticking (1 tick per +- 68 secs) - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")
     public static int GRASS_GROW_BACK_CHANCE;
 
+    @ConfigIntValue(defaultValue = 1, comment = "The amount of flowers per chunk")
+    public static int FLOWER_QUANTITY;
+
     public static void recalculate()
     {
         BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_CHANGE_TICKS;
