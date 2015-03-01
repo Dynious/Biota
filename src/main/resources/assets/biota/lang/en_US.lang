@@ -1,0 +1,10 @@
+tile.biota:alfafla.name=Alfafla
+tile.biota:clover.name=Clover
+tile.biota:fenugreek.name=Fenugreek
+tile.biota:lupin.name=Lupin
+tile.biota:peanut.name=Peanut
+tile.biota:rooibos.name=Rooibos
+
+item.biota:potash.name=Potash
+
+itemGroup.Biota=Biota
