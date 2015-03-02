@@ -39,6 +39,16 @@ public interface IBiotaAPI
     public void registerPlantSpreader(Block plantBlock, IPlantSpreader plantSpreader);
 
     /**
+     * Returns a float array of length 3 with the nutrient values in this order:
+     * Phosphorus, Potassium, Nitrogen
+     *
+     * @param world The world of the chunk
+     * @param chunk The chunk to return the value for
+     * @return Array of length three with the nutrient values of the chunk
+     */
+    public float[] getNutrients(World world, Chunk chunk);
+
+    /**
      * Registers a biomass value for the given block. Uses the value from the array of the metadata value of the block.
      * If this metadata value is larger than the array size it will use the first value
      *

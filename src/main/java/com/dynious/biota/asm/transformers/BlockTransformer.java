@@ -43,8 +43,7 @@ public class BlockTransformer implements ITransformer
                         {
                             node = node.getNext();
                             ((TypeInsnNode) node).desc = "com/dynious/biota/block/BlockNewGrass";
-                            node = node.getNext();
-                            node = node.getNext();
+                            node = node.getNext().getNext();
                             ((MethodInsnNode) node).owner = "com/dynious/biota/block/BlockNewGrass";
                             break;
                         }

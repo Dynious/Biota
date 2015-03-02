@@ -38,6 +38,17 @@ public class BiotaAPI implements IBiotaAPI
     }
 
     @Override
+    public float[] getNutrients(World world, Chunk chunk)
+    {
+        BioSystem bioSystem = BioSystemHandler.getBioSystem(world, chunk);
+        if (bioSystem != null)
+        {
+            return new float[] { bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen() };
+        }
+        return new float[3];
+    }
+
+    @Override
     public void registerPlantValue(Block plantBlock, float[] biomassValues)
     {
         if (plantBlock != null)
