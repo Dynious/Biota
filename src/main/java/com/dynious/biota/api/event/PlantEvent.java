@@ -25,6 +25,16 @@ public class PlantEvent extends Event
         this.lightValue = lightValue;
     }
 
+    /**
+     * Fired every block tick of a plant. This determines if a plant will spread.
+     *
+     * This event is not {@link cpw.mods.fml.common.eventhandler.Cancelable}.
+     *
+     * This event uses the {@link Result}. {@link HasResult}
+     * {@link Result#DEFAULT} will only spread when Biotas conditions are met.
+     * {@link Result#ALLOW} will allow spread without condition.
+     * {@link Result#DENY} will deny spread without condition.
+     */
     @HasResult
     public static class SpreadEvent extends PlantEvent
     {
@@ -34,6 +44,16 @@ public class PlantEvent extends Event
         }
     }
 
+    /**
+     * Fired every block tick of a plant. This determines if a plant will die.
+     *
+     * This event is not {@link cpw.mods.fml.common.eventhandler.Cancelable}.
+     *
+     * This event uses the {@link Result}. {@link HasResult}
+     * {@link Result#DEFAULT} will only die when Biotas conditions are met.
+     * {@link Result#ALLOW} will allow death without condition.
+     * {@link Result#DENY} will deny death without condition.
+     */
     @HasResult
     public static class DeathEvent extends PlantEvent
     {
