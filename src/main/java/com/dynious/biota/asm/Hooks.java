@@ -8,8 +8,10 @@ import com.dynious.biota.biosystem.BioSystemHandler;
 import com.dynious.biota.biosystem.ClientBioSystem;
 import com.dynious.biota.biosystem.ClientBioSystemHandler;
 import com.dynious.biota.config.PlantConfig;
+import com.dynious.biota.event.EventPoster;
 import com.dynious.biota.helper.WorldHelper;
 import com.dynious.biota.lib.Settings;
+import cpw.mods.fml.common.eventhandler.Event;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -78,7 +80,23 @@ public class Hooks
             //TODO: some plants might handle low nutrient values better, also curve fit this too, light checking uses 0.05 ms per player loaded area, too much?
             float nutrientValue = bioSystem.getLowestNutrientValue();
             int lightValue = block.isOpaqueCube() ? WorldHelper.getLightValue(world, x, y + 1, z) : WorldHelper.getLightValue(world, x, y, z);
-            if (nutrientValue < Settings.NUTRIENT_AMOUNT_FOR_DEATH || lightValue < Settings.LIGHT_VALUE_FOR_DEATH)
+
+            Event.Result spreadResult = EventPoster.postSpreadEvent(block, world, x, y, z, nutrientValue, lightValue);
+            if (spreadResult == Event.Result.ALLOW || (spreadResult == Event.Result.DEFAULT && nutrientValue > Settings.NUTRIENT_AMOUNT_FOR_SPREAD && lightValue > Settings.LIGHT_VALUE_FOR_SPREAD))
+            {
+                IPlantSpreader spreader = PlantConfig.getPlantSpreader(block);
+                if (spreader != null && spreader.canSpread(world, x, y, z, block) && world.rand.nextFloat() < Settings.PLANT_SPREAD_CHANCE)
+                {
+                    BlockAndMeta blockAndMeta = spreader.spread(world, x, y, z, block);
+                    if (blockAndMeta != null)
+                    {
+                        bioSystem.onGrowth(PlantConfig.getPlantBlockBiomassValue(blockAndMeta.block, blockAndMeta.meta), false);
+                    }
+                }
+            }
+
+            Event.Result deathResult = EventPoster.postDeathEvent(block, world, x, y, z, nutrientValue, lightValue);
+            if (deathResult == Event.Result.ALLOW || (deathResult == Event.Result.DEFAULT && (nutrientValue < Settings.NUTRIENT_AMOUNT_FOR_DEATH || lightValue < Settings.LIGHT_VALUE_FOR_DEATH)))
             {
                 //Death to the plants >:c
                 int meta = world.getBlockMetadata(x, y, z);
@@ -97,18 +115,6 @@ public class Hooks
                 else
                 {
                     world.setBlockToAir(x, y, z);
-                }
-            }
-            else if (nutrientValue > Settings.NUTRIENT_AMOUNT_FOR_SPREAD && lightValue > Settings.LIGHT_VALUE_FOR_SPREAD)
-            {
-                IPlantSpreader spreader = PlantConfig.getPlantSpreader(block);
-                if (spreader != null && spreader.canSpread(world, x, y, z, block) && world.rand.nextFloat() < Settings.PLANT_SPREAD_CHANCE)
-                {
-                    BlockAndMeta blockAndMeta = spreader.spread(world, x, y, z, block);
-                    if (blockAndMeta != null)
-                    {
-                        bioSystem.onGrowth(PlantConfig.getPlantBlockBiomassValue(blockAndMeta.block, blockAndMeta.meta), false);
-                    }
                 }
             }
         }
