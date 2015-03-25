@@ -164,7 +164,7 @@ public class BiomeConfig
         private static Loader makeDefaultPlantConfig()
         {
             List<LoaderPart> list = new ArrayList<LoaderPart>();
-            list.add(new LoaderPart(0, 15F, 200F, 7.5F));
+            list.add(new LoaderPart(1, 15F, 200F, 7.5F));
             list.add(new LoaderPart(2, 7.5F, 100F, 3.75F));
             return new Loader(list.toArray(new LoaderPart[list.size()]));
         }
