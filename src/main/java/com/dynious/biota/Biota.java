@@ -2,6 +2,7 @@ package com.dynious.biota;
 
 import com.dynious.biota.block.ModBlocks;
 import com.dynious.biota.command.CommandBiota;
+import com.dynious.biota.config.BiomeConfig;
 import com.dynious.biota.config.ConfigHandler;
 import com.dynious.biota.config.PlantConfig;
 import com.dynious.biota.creativetab.CreativeTabBiota;
@@ -46,6 +47,7 @@ public class Biota
         ModItems.init();
 
         PlantConfig.init();
+        BiomeConfig.init();
 
         NetworkHandler.init();
 

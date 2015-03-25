@@ -7,17 +7,17 @@ public class Settings
 {
     @ConfigFloatValue(defaultValue = 15F, comment = "Normal Phosphorus amount (ppm)")
     public static float NORMAL_PHOSPHORUS;
-    @ConfigFloatValue(defaultValue = 5F, comment = "The random difference in Phosphorus amount per chunk")
+    @ConfigFloatValue(defaultValue = 0.333F, comment = "The random difference in Phosphorus amount per chunk in percents")
     public static float DELTA_PHOSPHORUS;
 
     @ConfigFloatValue(defaultValue = 200F, comment = "Normal Potassium amount (ppm)")
     public static float NORMAL_POTASSIUM;
-    @ConfigFloatValue(defaultValue = 50F, comment = "The random difference in Potassium amount per chunk")
+    @ConfigFloatValue(defaultValue = 0.25F, comment = "The random difference in Potassium amount per chunk in percents")
     public static float DELTA_POTASSIUM;
 
     @ConfigFloatValue(defaultValue = 7.5F, comment = "Normal Nitrogen amount (ppm)")
     public static float NORMAL_NITROGEN;
-    @ConfigFloatValue(defaultValue = 2.5F, comment = "The random difference in Nitrogen amount per chunk")
+    @ConfigFloatValue(defaultValue = 0.333F, comment = "The random difference in Nitrogen amount per chunk in percents")
     public static float DELTA_NITROGEN;
 
     @ConfigFloatValue(defaultValue = 0.1F, comment = "The chance plants growth when ticking (1 tick per +- 68 secs) - max 1")

@@ -77,8 +77,10 @@ public class Hooks
 
         if (bioSystem != null)
         {
-            //TODO: some plants might handle low nutrient values better, also curve fit this too, light checking uses 0.05 ms per player loaded area, too much?
-            float nutrientValue = bioSystem.getLowestNutrientValue();
+            //TODO: Curve fit this too, light checking uses 0.05 ms per player loaded area, too much?
+            int meta = world.getBlockMetadata(x, y, z);
+
+            float nutrientValue = PlantConfig.getLowestNutrientPart(block, meta, bioSystem.getPhosphorus(), bioSystem.getPotassium(), bioSystem.getNitrogen());
             int lightValue = block.isOpaqueCube() ? WorldHelper.getLightValue(world, x, y + 1, z) : WorldHelper.getLightValue(world, x, y, z);
 
             Event.Result spreadResult = EventPoster.postSpreadEvent(block, world, x, y, z, nutrientValue, lightValue);
@@ -99,7 +101,6 @@ public class Hooks
             if (deathResult == Event.Result.ALLOW || (deathResult == Event.Result.DEFAULT && (nutrientValue < Settings.NUTRIENT_AMOUNT_FOR_DEATH || lightValue < Settings.LIGHT_VALUE_FOR_DEATH)))
             {
                 //Death to the plants >:c
-                int meta = world.getBlockMetadata(x, y, z);
                 BlockAndMeta blockAndMeta = PlantConfig.getDeadPlant(block, meta);
                 if (blockAndMeta != null)
                 {

@@ -1,6 +1,7 @@
 package com.dynious.biota.biosystem;
 
 import com.dynious.biota.Biota;
+import com.dynious.biota.config.BiomeConfig;
 import com.dynious.biota.lib.Settings;
 import com.dynious.biota.network.NetworkHandler;
 import com.dynious.biota.network.message.MessageBioSystemUpdate;
@@ -83,8 +84,12 @@ public class BioSystem
 
     public BioSystem(Chunk chunk)
     {
-        //TODO: Biome dependant?
-        this(chunk, Settings.NORMAL_PHOSPHORUS + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_PHOSPHORUS, Settings.NORMAL_POTASSIUM + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_POTASSIUM, Settings.NORMAL_NITROGEN + (1F-(RANDOM.nextFloat()*2))*Settings.DELTA_NITROGEN);
+        this(chunk, BiomeConfig.getRandomizedNutrientValuesForChunk(chunk));
+    }
+
+    private BioSystem(Chunk chunk ,float[] nutrients)
+    {
+        this(chunk, nutrients[0], nutrients[1], nutrients[2]);
     }
 
     public BioSystem(Chunk chunk, float phosphorus, float potassium, float nitrogen)
@@ -222,15 +227,6 @@ public class BioSystem
 
     }
 
-    public float getLowestNutrientValue()
-    {
-        float P = getPhosphorus() / Settings.NORMAL_PHOSPHORUS;
-        float K = getPotassium() / Settings.NORMAL_POTASSIUM;
-        float N = getNitrogen() / Settings.NORMAL_NITROGEN;
-
-        return Math.min(Math.min(P, K), N);
-    }
-
     public void update()
     {
         tick++;
@@ -242,6 +238,10 @@ public class BioSystem
 
             if (chunk != null)
             {
+                if (chunk.xPosition == 0 && chunk.zPosition == 0)
+                {
+                    System.out.println(String.format("PRE: Biomass: %f, Nitrogen Fixation: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", this.getBiomass(), this.getNitrogenFixation(), this.getPhosphorus(), this.getPotassium(), this.getNitrogen(), this.getDecomposingBacteria(), this.getNitrifyingBacteria()));
+                }
                 //TODO: BALANCE! BIOMASS INCREASE HAS A VERY DRAMATIC EFFECT, NUTRIENT USAGE TOO HIGH.
                 //Bacteria calculations
                 float biomassBacteriaRate = biomass / decomposingBacteria;
@@ -251,7 +251,6 @@ public class BioSystem
                 }
                 else if (biomassBacteriaRate < Settings.BACTERIA_DEATH)
                 {
-
                     decomposingBacteria -= (1-biomassBacteriaRate)*decomposingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
 
@@ -262,7 +261,6 @@ public class BioSystem
                 }
                 else if (nirtifyingBacteriaRate < Settings.BACTERIA_DEATH)
                 {
-
                     nitrifyingBacteria -= (1-nirtifyingBacteriaRate)*nitrifyingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
 
@@ -276,16 +274,26 @@ public class BioSystem
                 potassium -= biomass * Settings.POTASSIUM_CHANGE_RATE;
                 potassium = Math.max(0, potassium);
 
-                //TODO: nitrogen fixation should be calculated diffently (should not be dependant on nitrogen change rate in plnats)
+                //TODO: nitrogen fixation should be calculated diffently (should not be dependant on nitrogen change rate in plants)
                 nitrogen += Math.min(Math.min(biomass, decomposingBacteria) + nitrogenFixation, nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen = Math.max(0, nitrogen);
+
+                if (chunk.xPosition == 0 && chunk.zPosition == 0)
+                {
+                    System.out.println(String.format("POST: Biomass: %f, Nitrogen Fixation: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", this.getBiomass(), this.getNitrogenFixation(), this.getPhosphorus(), this.getPotassium(), this.getNitrogen(), this.getDecomposingBacteria(), this.getNitrifyingBacteria()));
+                }
 
                 //Spread BioSystem stuff to nearby chunks
                 spreadToChunk(chunk, chunk.xPosition - 1, chunk.zPosition);
                 spreadToChunk(chunk, chunk.xPosition + 1, chunk.zPosition);
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition - 1);
                 spreadToChunk(chunk, chunk.xPosition, chunk.zPosition + 1);
+
+                if (chunk.xPosition == 0 && chunk.zPosition == 0)
+                {
+                    System.out.println(String.format("SPREAD: Biomass: %f, Nitrogen Fixation: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", this.getBiomass(), this.getNitrogenFixation(), this.getPhosphorus(), this.getPotassium(), this.getNitrogen(), this.getDecomposingBacteria(), this.getNitrifyingBacteria()));
+                }
 
                 //Send the chunk biomass changes to all clients watching this chunk
                 NetworkHandler.INSTANCE.sendToPlayersWatchingChunk(new MessageBioSystemUpdate(this), (WorldServer) chunk.worldObj, chunk.xPosition, chunk.zPosition);

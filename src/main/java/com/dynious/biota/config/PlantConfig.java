@@ -8,6 +8,7 @@ import com.dynious.biota.api.IPlantSpreader;
 import com.dynious.biota.biosystem.spreader.TallGrassSpreader;
 import com.dynious.biota.block.ModBlocks;
 import com.dynious.biota.lib.Reference;
+import com.dynious.biota.lib.Settings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 public class PlantConfig
 {
+    private static final float[][] NORMAL_NUTRIENTS = { { Settings.NORMAL_PHOSPHORUS }, { Settings.NORMAL_POTASSIUM }, { Settings.NORMAL_NITROGEN } };
     private static Map<Block, PlantInfo> plantInfoMap = new HashMap<Block, PlantInfo>();
     private static List<LinkedBlockAndMeta> livingDeadList = new ArrayList<LinkedBlockAndMeta>();
 
@@ -53,7 +55,7 @@ public class PlantConfig
     public static void registerPlantValue(Block plant, float[] biomassValues)
     {
         if (biomassValues != null && biomassValues.length > 0)
-            plantInfoMap.put(plant, new PlantInfo(biomassValues));
+            plantInfoMap.put(plant, new PlantInfo(biomassValues, NORMAL_NUTRIENTS));
     }
 
     public static void registerPlantSpreader(Block plant, IPlantSpreader spreader)
@@ -84,7 +86,28 @@ public class PlantConfig
     public static IPlantSpreader getPlantSpreader(Block block)
     {
         PlantInfo plantInfo = plantInfoMap.get(block);
-        return plantInfo.spreader;
+        return plantInfo == null ? null : plantInfo.spreader;
+    }
+
+    public static float getLowestNutrientPart(Block block, int meta, float currentPhosphorus, float currentPotassium, float currentNitrogen)
+    {
+        PlantInfo plantInfo = plantInfoMap.get(block);
+
+        if (plantInfo == null)
+            return 1F;
+
+        return Math.min(currentPhosphorus / getNutrientValue(plantInfo, 0, meta), Math.min(currentPotassium / getNutrientValue(plantInfo, 1, meta), currentNitrogen / getNutrientValue(plantInfo, 2, meta)));
+    }
+
+    private static float getNutrientValue(PlantInfo plantInfo, int type, int meta)
+    {
+        float[] values = plantInfo.normalNutrients[type];
+
+        if (meta >= 0 && meta < values.length)
+        {
+            return values[meta];
+        }
+        return values[0];
     }
 
     private static class LinkedBlockAndMeta
@@ -103,16 +126,19 @@ public class PlantConfig
     {
         private final float[] values;
         public IPlantSpreader spreader;
+        public final float[][] normalNutrients;
 
-        public PlantInfo(float[] values)
+        public PlantInfo(float[] values, float[][] normalNutrients)
         {
             this.values = values;
+            this.normalNutrients = normalNutrients;
         }
 
-        public PlantInfo(float[] values, IPlantSpreader spreader)
+        public PlantInfo(float[] values, IPlantSpreader spreader, float[][] normalNutrients)
         {
             this.values = values;
             this.spreader = spreader;
+            this.normalNutrients = normalNutrients;
         }
     }
 
@@ -157,7 +183,6 @@ public class PlantConfig
                 }
                 if (loader == null)
                     loader = makeDefaultPlantConfig();
-
             }
             LoaderPart[] plants1 = loader.plants;
             for (int i = 0; i < plants1.length; i++)
@@ -175,10 +200,18 @@ public class PlantConfig
                         else
                             biomassValues = new float[]{part.plantBiomassValue};
 
+                        float[][] normalNutrients = NORMAL_NUTRIENTS;
+                        if (part.normalPhosphorus != null)
+                            normalNutrients[0] = part.normalPhosphorus;
+                        if (part.normalPotassium != null)
+                            normalNutrients[1] = part.normalPotassium;
+                        if (part.normalNitrogen != null)
+                            normalNutrients[2] = part.normalNitrogen;
+
                         if (part.useDefaultSpreader != null && part.useDefaultSpreader)
-                            plantInfoMap.put(block, new PlantInfo(biomassValues, DefaultPlantSpreader.INSTANCE));
+                            plantInfoMap.put(block, new PlantInfo(biomassValues, DefaultPlantSpreader.INSTANCE, normalNutrients));
                         else
-                            plantInfoMap.put(block, new PlantInfo(biomassValues));
+                            plantInfoMap.put(block, new PlantInfo(biomassValues, normalNutrients));
                     } else
                     {
                         Biota.logger.warn("Unable to find plant block:" + part.blockName);
@@ -194,35 +227,35 @@ public class PlantConfig
         private static Loader makeDefaultPlantConfig()
         {
             List<LoaderPart> list = new ArrayList<LoaderPart>();
-            list.add(new LoaderPart("minecraft:grass", 0.1F, false));
-            list.add(new LoaderPart("minecraft:sapling", 0.5F, false));
-            list.add(new LoaderPart("minecraft:log", 0.5F, false));
-            list.add(new LoaderPart("minecraft:log2", 0.5F, false));
-            list.add(new LoaderPart("minecraft:leaves", 1.0F, false));
-            list.add(new LoaderPart("minecraft:leaves2", 1.0F, false));
-            list.add(new LoaderPart("minecraft:tallgrass", 0.8F, false));
-            list.add(new LoaderPart("minecraft:yellow_flower", 0.5F, true));
-            list.add(new LoaderPart("minecraft:red_flower", 0.5F, true));
-            list.add(new LoaderPart("minecraft:brown_mushroom", 0.3F, true));
-            list.add(new LoaderPart("minecraft:red_mushroom", 0.3F, true));
-            list.add(new LoaderPart("minecraft:mossy_cobblestone", 0.1F, false));
-            list.add(new LoaderPart("minecraft:wheat", new float[] { 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F }, true));
-            list.add(new LoaderPart("minecraft:cactus", 0.6F, true));
-            list.add(new LoaderPart("minecraft:reeds", 0.4F, true));
-            list.add(new LoaderPart("minecraft:pumpkin", 0.9F, false));
-            list.add(new LoaderPart("minecraft:brown_mushroom_block", 0.7F, false));
-            list.add(new LoaderPart("minecraft:red_mushroom_block", 0.7F, false));
-            list.add(new LoaderPart("minecraft:melon_block", 0.9F, false));
-            list.add(new LoaderPart("minecraft:pumpkin_stem", new float[] { 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F }, true));
-            list.add(new LoaderPart("minecraft:melon_stem", new float[] { 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F }, true));
-            list.add(new LoaderPart("minecraft:vine", 0.2F, true));
-            list.add(new LoaderPart("minecraft:mycelium", 0.1F, false));
-            list.add(new LoaderPart("minecraft:waterlily", 0.2F, true));
-            list.add(new LoaderPart("minecraft:nether_wart", 0.5F, false));
-            list.add(new LoaderPart("minecraft:cocoa", new float[] { 0.4F, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, 0.5F, 0.5F, 0.6F, 0.6F, 0.6F, 0.6F}, true));
-            list.add(new LoaderPart("minecraft:carrots", new float[] { 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F }, true));
-            list.add(new LoaderPart("minecraft:potatoes", new float[] { 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F }, true));
-            list.add(new LoaderPart("minecraft:double_plant", 0.6F, true));
+            list.add(new LoaderPart("minecraft:grass", false, 0.1F));
+            list.add(new LoaderPart("minecraft:sapling", false, 0.5F));
+            list.add(new LoaderPart("minecraft:log", false, 0.5F));
+            list.add(new LoaderPart("minecraft:log2", false, 0.5F));
+            list.add(new LoaderPart("minecraft:leaves", false, 1.0F));
+            list.add(new LoaderPart("minecraft:leaves2", false, 1.0F));
+            list.add(new LoaderPart("minecraft:tallgrass", false, 0.8F));
+            list.add(new LoaderPart("minecraft:yellow_flower", true, 0.5F));
+            list.add(new LoaderPart("minecraft:red_flower", true, 0.5F));
+            list.add(new LoaderPart("minecraft:brown_mushroom", true, 0.3F));
+            list.add(new LoaderPart("minecraft:red_mushroom", true, 0.3F));
+            list.add(new LoaderPart("minecraft:mossy_cobblestone", false, 0.1F));
+            list.add(new LoaderPart("minecraft:wheat", true, 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F));
+            list.add(new LoaderPart("minecraft:cactus", true, 0.6F));
+            list.add(new LoaderPart("minecraft:reeds", true, 0.4F));
+            list.add(new LoaderPart("minecraft:pumpkin", false, 0.9F));
+            list.add(new LoaderPart("minecraft:brown_mushroom_block", false, 0.7F));
+            list.add(new LoaderPart("minecraft:red_mushroom_block", false, 0.7F));
+            list.add(new LoaderPart("minecraft:melon_block", false, 0.9F));
+            list.add(new LoaderPart("minecraft:pumpkin_stem", true, 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F));
+            list.add(new LoaderPart("minecraft:melon_stem", true, 0.1F, 0.125F, 0.15F, 0.175F, 0.2F, 0.225F, 0.250F, 0.275F));
+            list.add(new LoaderPart("minecraft:vine", true, 0.2F));
+            list.add(new LoaderPart("minecraft:mycelium", false, 0.1F));
+            list.add(new LoaderPart("minecraft:waterlily", true, 0.2F));
+            list.add(new LoaderPart("minecraft:nether_wart", false, 0.5F));
+            list.add(new LoaderPart("minecraft:cocoa", true, 0.4F, 0.4F, 0.4F, 0.4F, 0.5F, 0.5F, 0.5F, 0.5F, 0.6F, 0.6F, 0.6F, 0.6F));
+            list.add(new LoaderPart("minecraft:carrots", true, 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F));
+            list.add(new LoaderPart("minecraft:potatoes", true, 0.1F, 0.2F, 0.3F, 0.4F, 0.5F, 0.6F, 0.7F, 0.8F));
+            list.add(new LoaderPart("minecraft:double_plant", true, 0.6F));
             return new Loader(list.toArray(new LoaderPart[list.size()]));
         }
 
@@ -231,20 +264,26 @@ public class PlantConfig
             public String blockName;
             public Float plantBiomassValue;
             public float[] plantBiomassValues;
+            public float[] normalPhosphorus;
+            public float[] normalPotassium;
+            public float[] normalNitrogen;
             public Boolean useDefaultSpreader;
 
-            public LoaderPart(String blockName, float plantBiomassValue, boolean useDefaultSpreader)
-            {
-                this.blockName = blockName;
-                this.plantBiomassValue = plantBiomassValue;
-                this.useDefaultSpreader = !useDefaultSpreader ? null : true;
-            }
-
-            public LoaderPart(String blockName, float[] plantBiomassValues, boolean useDefaultSpreader)
+            public LoaderPart(String blockName, boolean useDefaultSpreader, float... plantBiomassValues)
             {
                 this.blockName = blockName;
                 this.plantBiomassValues = plantBiomassValues;
                 this.useDefaultSpreader = !useDefaultSpreader ? null : true;
+            }
+
+            public LoaderPart(String blockName, float[] normalPhosphorus, float[] normalPotassium, float[] normalNitrogen, boolean useDefaultSpreader, float... plantBiomassValues)
+            {
+                this.blockName = blockName;
+                this.plantBiomassValues = plantBiomassValues;
+                this.useDefaultSpreader = !useDefaultSpreader ? null : true;
+                this.normalPhosphorus = normalPhosphorus;
+                this.normalPotassium = normalPotassium;
+                this.normalNitrogen = normalNitrogen;
             }
         }
     }

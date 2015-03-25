@@ -14,7 +14,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
-import java.util.Iterator;
 import java.util.List;
 
 public class CommandBiota extends CommandBase
@@ -35,12 +34,6 @@ public class CommandBiota extends CommandBase
     public String getCommandUsage(ICommandSender icommandsender)
     {
         return "/" + getCommandName() + " " + Commands.HELP;
-    }
-
-    @Override
-    public boolean canCommandSenderUseCommand(ICommandSender par1ICommandSender)
-    {
-        return true;
     }
 
     @Override
@@ -81,32 +74,6 @@ public class CommandBiota extends CommandBase
                     }
                 }
             }
-            else if (commandName.equalsIgnoreCase(Commands.GET_LOWEST_IN_WORLD))
-            {
-                BioSystemHandler handler = BioSystemHandler.get(icommandsender.getEntityWorld());
-                if (handler != null)
-                {
-                    float lowest = Float.MAX_VALUE;
-                    int x = 0, z = 0;
-                    Iterator<BioSystem> iterator = handler.iterator();
-                    while (iterator.hasNext())
-                    {
-                        BioSystem bioSystem = iterator.next();
-                        Chunk chunk = bioSystem.chunkReference.get();
-                        if (chunk != null)
-                        {
-                            float value = bioSystem.getLowestNutrientValue();
-                            if (value < lowest)
-                            {
-                                lowest = value;
-                                x = chunk.xPosition;
-                                z = chunk.zPosition;
-                            }
-                        }
-                    }
-                    icommandsender.addChatMessage(new ChatComponentText(String.format("Lowest nutrient value in loaded world is %f in chunk at %d %d", lowest, x, z)));
-                }
-            }
             else if (commandName.equalsIgnoreCase(Commands.GET_BIOSYSTEM))
             {
                 World world = icommandsender.getEntityWorld();
@@ -137,7 +104,7 @@ public class CommandBiota extends CommandBase
         {
             case 1:
             {
-                return getListOfStringsMatchingLastWord(args, Commands.HELP, Commands.SET_NUTRIENTS, Commands.GET_NUTRIENTS, Commands.GET_LOWEST_IN_WORLD, Commands.GET_BIOSYSTEM, Commands.RECALCULATE_BIOMASS);
+                return getListOfStringsMatchingLastWord(args, Commands.HELP, Commands.SET_NUTRIENTS, Commands.GET_NUTRIENTS, Commands.GET_BIOSYSTEM, Commands.RECALCULATE_BIOMASS);
             }
         }
         return null;
