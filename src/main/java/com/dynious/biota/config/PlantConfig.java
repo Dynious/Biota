@@ -198,7 +198,7 @@ public class PlantConfig
                         if (part.plantBiomassValues != null)
                             biomassValues = part.plantBiomassValues;
                         else
-                            biomassValues = new float[]{part.plantBiomassValue};
+                            biomassValues = new float[]{ 0F };
 
                         float[][] normalNutrients = NORMAL_NUTRIENTS;
                         if (part.normalPhosphorus != null)
@@ -262,7 +262,6 @@ public class PlantConfig
         private static class LoaderPart
         {
             public String blockName;
-            public Float plantBiomassValue;
             public float[] plantBiomassValues;
             public float[] normalPhosphorus;
             public float[] normalPotassium;
