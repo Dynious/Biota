@@ -7,17 +7,20 @@ public class Settings
 {
     @ConfigFloatValue(defaultValue = 15F, comment = "Normal Phosphorus amount (ppm)")
     public static float NORMAL_PHOSPHORUS;
-    @ConfigFloatValue(defaultValue = 0.333F, comment = "The random difference in Phosphorus amount per chunk in percents")
+    // Used to be 0.33
+    @ConfigFloatValue(defaultValue = 0.08F, comment = "The random difference in Phosphorus amount per chunk in percents")
     public static float DELTA_PHOSPHORUS;
 
     @ConfigFloatValue(defaultValue = 200F, comment = "Normal Potassium amount (ppm)")
     public static float NORMAL_POTASSIUM;
-    @ConfigFloatValue(defaultValue = 0.25F, comment = "The random difference in Potassium amount per chunk in percents")
+    // Used to be 0.25
+    @ConfigFloatValue(defaultValue = 0.05F, comment = "The random difference in Potassium amount per chunk in percents")
     public static float DELTA_POTASSIUM;
 
     @ConfigFloatValue(defaultValue = 7.5F, comment = "Normal Nitrogen amount (ppm)")
     public static float NORMAL_NITROGEN;
-    @ConfigFloatValue(defaultValue = 0.333F, comment = "The random difference in Nitrogen amount per chunk in percents")
+    // Used to be 0.33
+    @ConfigFloatValue(defaultValue = 0.08F, comment = "The random difference in Nitrogen amount per chunk in percents")
     public static float DELTA_NITROGEN;
 
     @ConfigFloatValue(defaultValue = 0.1F, comment = "The chance plants growth when ticking (1 tick per +- 68 secs) - max 1")
@@ -87,11 +90,11 @@ public class Settings
     @ConfigFloatValue(defaultValue = 0.75F, comment = "Bacteria will start to die when there's this much biomass compared to what they can consume at max")
     public static float BACTERIA_DEATH;
 
-    @ConfigFloatValue(defaultValue = 1.2F, comment = "The amount Phosphorus in Bonemeal")
+    @ConfigFloatValue(defaultValue = 0.6F, comment = "The amount Phosphorus in Bonemeal")
     public static float BONEMEAL_PHOSPHORUS;
     @ConfigFloatValue(defaultValue = 0.0F, comment = "The amount Potassium in Bonemeal")
     public static float BONEMEAL_POTASSIUM;
-    @ConfigFloatValue(defaultValue = 0.4F, comment = "The amount Nitrogen in Bonemeal")
+    @ConfigFloatValue(defaultValue = 0.2F, comment = "The amount Nitrogen in Bonemeal")
     public static float BONEMEAL_NITROGEN;
 
     @ConfigIntValue(defaultValue = 5, comment = "The chance a grass block will get more worn - The larger this value the smaller the chance, 1 is always, 10 = 1/10 chance")

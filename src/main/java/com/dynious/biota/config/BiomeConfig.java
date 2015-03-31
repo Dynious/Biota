@@ -164,8 +164,47 @@ public class BiomeConfig
         private static Loader makeDefaultPlantConfig()
         {
             List<LoaderPart> list = new ArrayList<LoaderPart>();
+            list.add(new LoaderPart(0, 15F, 200F, 7.5F));
             list.add(new LoaderPart(1, 15F, 200F, 7.5F));
             list.add(new LoaderPart(2, 7.5F, 100F, 3.75F));
+            list.add(new LoaderPart(3, 13F, 180F, 7F));
+            list.add(new LoaderPart(4, 15F, 200F, 7.5F));
+            list.add(new LoaderPart(5, 14F, 190F, 7.25F));
+            list.add(new LoaderPart(6, 16F, 220F, 8F));
+            list.add(new LoaderPart(7, 14F, 180F, 7.25F));
+            list.add(new LoaderPart(8, 4F, 70F, 2F));
+            list.add(new LoaderPart(9, 0F, 0F, 0F));
+            list.add(new LoaderPart(10, 13F, 180F, 7F));
+            list.add(new LoaderPart(11, 12F, 160F, 6F));
+            list.add(new LoaderPart(12, 13F, 170F, 6.5F));
+            list.add(new LoaderPart(13, 13F, 180F, 7F));
+            list.add(new LoaderPart(14, 13F, 180F, 7F));
+            list.add(new LoaderPart(15, 13F, 180F, 7F));
+            list.add(new LoaderPart(16, 13F, 180F, 7F));
+            list.add(new LoaderPart(17, 7.5F, 100F, 3.75F));
+            list.add(new LoaderPart(18, 15F, 200, 7.5F));
+            list.add(new LoaderPart(19, 13F, 180F, 7F));
+            list.add(new LoaderPart(20, 14F, 190F, 7.25F));
+            list.add(new LoaderPart(21, 17F, 280F, 9F));
+            list.add(new LoaderPart(22, 17F, 280F, 9F));
+            list.add(new LoaderPart(23, 17F, 280F, 9F));
+            list.add(new LoaderPart(24, 15F, 200F, 7.5F));
+            list.add(new LoaderPart(25, 8F, 120F, 4F));
+            list.add(new LoaderPart(26, 13F, 180F, 7F));
+            list.add(new LoaderPart(27, 15F, 200F, 7.5F));
+            list.add(new LoaderPart(28, 15F, 200F, 7.5F));
+            list.add(new LoaderPart(29, 15F, 200F, 7.5F));
+            list.add(new LoaderPart(30, 13F, 180F, 7F));
+            list.add(new LoaderPart(31, 13F, 180F, 7F));
+            list.add(new LoaderPart(32, 14F, 190F, 7.25F));
+            list.add(new LoaderPart(33, 13F, 180F, 7F));
+            list.add(new LoaderPart(34, 14F, 190F, 7.25F));
+            list.add(new LoaderPart(35, 11.5F, 155F, 5.75F));
+            list.add(new LoaderPart(36, 11.5F, 155F, 5.75F));
+            list.add(new LoaderPart(37, 7.5F, 100F, 3.75F));
+            list.add(new LoaderPart(38, 7.5F, 100F, 3.75F));
+            list.add(new LoaderPart(39, 7.5F, 100F, 3.75F));
+
             return new Loader(list.toArray(new LoaderPart[list.size()]));
         }
 
