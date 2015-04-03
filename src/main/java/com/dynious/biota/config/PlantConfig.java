@@ -144,6 +144,7 @@ public class PlantConfig
 
     private static class Loader
     {
+        private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
         public LoaderPart[] plants;
 
         private Loader(LoaderPart[] plants)
@@ -153,78 +154,96 @@ public class PlantConfig
 
         public static void load()
         {
-            Loader loader = null;
+            List<Loader> loaders = new ArrayList<Loader>();
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-            File file = new File(cpw.mods.fml.common.Loader.instance().getConfigDir(), Reference.MOD_ID.toLowerCase() + File.separator + "plants.cfg");
+            File file = new File(cpw.mods.fml.common.Loader.instance().getConfigDir(), Reference.MOD_ID.toLowerCase());
             if (!file.exists())
             {
-                file.getParentFile().mkdirs();
-                loader = makeDefaultPlantConfig();
+                file.mkdirs();
+            }
+            boolean foundVanilla = false;
+            for (File foundFile : file.listFiles())
+            {
+                if (foundFile.getName().endsWith(".cfg") && foundFile.getName().startsWith("plants"))
+                {
+                    if (foundFile.getName().equals("plantsVanilla.cfg"))
+                        foundVanilla = true;
+                    Loader loader = readFile(file);
+                    if (loader != null)
+                        loaders.add(loader);
+                }
+            }
+            if (!foundVanilla)
+            {
+                Loader loader = makeDefaultConfig();
                 String jsonString = gson.toJson(loader);
                 try
                 {
-                    FileUtils.writeStringToFile(file, jsonString);
+                    FileUtils.writeStringToFile(new File(file, "plantsVanilla.cfg"), jsonString);
                 } catch (IOException e)
                 {
                     e.printStackTrace();
                 }
             }
-            else
-            {
-                try
-                {
-                    String jsonString = FileUtils.readFileToString(file);
-                    loader = gson.fromJson(jsonString, Loader.class);
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-                if (loader == null)
-                    loader = makeDefaultPlantConfig();
-            }
-            LoaderPart[] plants1 = loader.plants;
-            for (int i = 0; i < plants1.length; i++)
-            {
-                LoaderPart part = plants1[i];
-                if (part.blockName != null)
-                {
-                    int index = part.blockName.indexOf(':');
-                    Block block = GameRegistry.findBlock(part.blockName.substring(0, index), part.blockName.substring(index + 1));
-                    if (block != null)
-                    {
-                        float[] biomassValues;
-                        if (part.plantBiomassValues != null)
-                            biomassValues = part.plantBiomassValues;
-                        else
-                            biomassValues = new float[]{ 0F };
 
-                        float[][] normalNutrients = NORMAL_NUTRIENTS;
-                        if (part.normalPhosphorus != null)
-                            normalNutrients[0] = part.normalPhosphorus;
-                        if (part.normalPotassium != null)
-                            normalNutrients[1] = part.normalPotassium;
-                        if (part.normalNitrogen != null)
-                            normalNutrients[2] = part.normalNitrogen;
-
-                        if (part.useDefaultSpreader != null && part.useDefaultSpreader)
-                            plantInfoMap.put(block, new PlantInfo(biomassValues, DefaultPlantSpreader.INSTANCE, normalNutrients));
-                        else
-                            plantInfoMap.put(block, new PlantInfo(biomassValues, normalNutrients));
-                    } else
+            for (Loader loader : loaders)
+            {
+                LoaderPart[] plants1 = loader.plants;
+                for (int i = 0; i < plants1.length; i++)
+                {
+                    LoaderPart part = plants1[i];
+                    if (part.blockName != null)
                     {
-                        Biota.logger.warn("Unable to find plant block:" + part.blockName);
+                        int index = part.blockName.indexOf(':');
+                        Block block = GameRegistry.findBlock(part.blockName.substring(0, index), part.blockName.substring(index + 1));
+                        if (block != null)
+                        {
+                            float[] biomassValues;
+                            if (part.plantBiomassValues != null)
+                                biomassValues = part.plantBiomassValues;
+                            else
+                                biomassValues = new float[]{0F};
+
+                            float[][] normalNutrients = NORMAL_NUTRIENTS;
+                            if (part.normalPhosphorus != null)
+                                normalNutrients[0] = part.normalPhosphorus;
+                            if (part.normalPotassium != null)
+                                normalNutrients[1] = part.normalPotassium;
+                            if (part.normalNitrogen != null)
+                                normalNutrients[2] = part.normalNitrogen;
+
+                            if (part.useDefaultSpreader != null && part.useDefaultSpreader)
+                                plantInfoMap.put(block, new PlantInfo(biomassValues, DefaultPlantSpreader.INSTANCE, normalNutrients));
+                            else
+                                plantInfoMap.put(block, new PlantInfo(biomassValues, normalNutrients));
+                        }
+                        else
+                        {
+                            Biota.logger.warn("Unable to find plant block:" + part.blockName);
+                        }
                     }
-                }
-                else
-                {
-                    Biota.logger.warn("Unable to find plant block at index: " + i);
+                    else
+                    {
+                        Biota.logger.warn("Unable to find plant block at index: " + i);
+                    }
                 }
             }
         }
 
-        private static Loader makeDefaultPlantConfig()
+        private static Loader readFile(File file)
+        {
+            try
+            {
+                String jsonString = FileUtils.readFileToString(file);
+                return gson.fromJson(jsonString, Loader.class);
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private static Loader makeDefaultConfig()
         {
             List<LoaderPart> list = new ArrayList<LoaderPart>();
             list.add(new LoaderPart("minecraft:grass", new float[] { 11.25F },  new float[] { 150F }, new float[] { 5.63F }, false, 0.1F));

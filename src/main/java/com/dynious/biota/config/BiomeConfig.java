@@ -100,6 +100,7 @@ public class BiomeConfig
 
     private static class Loader
     {
+        private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
         public LoaderPart[] biomes;
 
         private Loader(LoaderPart[] biomes)
@@ -109,59 +110,77 @@ public class BiomeConfig
 
         public static void load()
         {
-            Loader loader = null;
+            List<Loader> loaders = new ArrayList<Loader>();
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-            File file = new File(cpw.mods.fml.common.Loader.instance().getConfigDir(), Reference.MOD_ID.toLowerCase() + File.separator + "biomes.cfg");
+            File file = new File(cpw.mods.fml.common.Loader.instance().getConfigDir(), Reference.MOD_ID.toLowerCase());
             if (!file.exists())
             {
-                file.getParentFile().mkdirs();
-                loader = makeDefaultPlantConfig();
+                file.mkdirs();
+            }
+            boolean foundVanilla = false;
+            for (File foundFile : file.listFiles())
+            {
+                if (foundFile.getName().endsWith(".cfg") && foundFile.getName().startsWith("biomes"))
+                {
+                    if (foundFile.getName().equals("biomesVanilla.cfg"))
+                        foundVanilla = true;
+                    Loader loader = readFile(file);
+                    if (loader != null)
+                        loaders.add(loader);
+                }
+            }
+            if (!foundVanilla)
+            {
+                Loader loader = makeDefaultConfig();
                 String jsonString = gson.toJson(loader);
                 try
                 {
-                    FileUtils.writeStringToFile(file, jsonString);
+                    FileUtils.writeStringToFile(new File(file, "biomesVanilla.cfg"), jsonString);
                 } catch (IOException e)
                 {
                     e.printStackTrace();
                 }
             }
-            else
+
+            for (Loader loader : loaders)
             {
-                try
+                LoaderPart[] biomes1 = loader.biomes;
+                for (LoaderPart biome : biomes1)
                 {
-                    String jsonString = FileUtils.readFileToString(file);
-                    loader = gson.fromJson(jsonString, Loader.class);
-                } catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-                if (loader == null)
-                    loader = makeDefaultPlantConfig();
-            }
-            LoaderPart[] biomes1 = loader.biomes;
-            for (LoaderPart biome : biomes1)
-            {
-                if (biome.biomeID >= 0 && biomeInfoArray.length > biome.biomeID)
-                {
-                    if (biomeInfoArray[biome.biomeID] == null)
+                    if (biome.biomeID >= 0 && biomeInfoArray.length > biome.biomeID)
                     {
-                        biomeInfoArray[biome.biomeID] = new BiomeInfo(new float[] { biome.normalPhosphorus, biome.normalPotassium, biome.normalNitrogen });
+                        if (biomeInfoArray[biome.biomeID] == null)
+                        {
+                            biomeInfoArray[biome.biomeID] = new BiomeInfo(new float[]{biome.normalPhosphorus, biome.normalPotassium, biome.normalNitrogen});
+                        }
+                        else
+                        {
+                            Biota.logger.warn("Biome with ID " + biome.biomeID + " already registered! Skipping.");
+                        }
                     }
                     else
                     {
-                        Biota.logger.warn("Biome with ID " + biome.biomeID + " already registered! Skipping.");
+                        Biota.logger.warn("Invalid biome id: " + biome.biomeID + "! Skipping.");
                     }
-                }
-                else
-                {
-                    Biota.logger.warn("Invalid biome id: " + biome.biomeID + "! Skipping.");
                 }
             }
         }
 
-        private static Loader makeDefaultPlantConfig()
+
+    private static Loader readFile(File file)
+    {
+        try
+        {
+            String jsonString = FileUtils.readFileToString(file);
+            return gson.fromJson(jsonString, Loader.class);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+        private static Loader makeDefaultConfig()
         {
             List<LoaderPart> list = new ArrayList<LoaderPart>();
             list.add(new LoaderPart(0, 15F, 200F, 7.5F));

@@ -9,51 +9,73 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PlantTransformerConfig
 {
+    private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     public static final PlantTransformerConfig INSTANCE;
 
     private PlantConfigPart[] plants;
 
     static
     {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        List<PlantTransformerConfig> loaders = new ArrayList<PlantTransformerConfig>();
 
-        File file = new File(Launch.minecraftHome, "config" + File.separator + Reference.MOD_ID.toLowerCase() + File.separator + "plantTransformer.cfg");
+        File file = new File(Launch.minecraftHome, "config" + File.separator + Reference.MOD_ID.toLowerCase());
         if (!file.exists())
         {
-            file.getParentFile().mkdirs();
-            INSTANCE = makeDefaultPlantConfig();
-            String jsonString = gson.toJson(INSTANCE);
-            try
-            {
-                FileUtils.writeStringToFile(file, jsonString);
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            file.mkdirs();
         }
-        else
+        boolean foundVanilla = false;
+        for (File foundFile : file.listFiles())
         {
-            PlantTransformerConfig plantTransformerConfig = null;
+            if (foundFile.getName().endsWith(".cfg") && foundFile.getName().startsWith("transformers"))
+            {
+                if (foundFile.getName().equals("transformersVanilla.cfg"))
+                    foundVanilla = true;
+                PlantTransformerConfig loader = readFile(file);
+                if (loader != null)
+                    loaders.add(loader);
+            }
+        }
+        if (!foundVanilla)
+        {
+            PlantTransformerConfig loader = makeDefaultConfig();
+            String jsonString = gson.toJson(loader);
             try
             {
-                String jsonString = FileUtils.readFileToString(file);
-                plantTransformerConfig = gson.fromJson(jsonString, PlantTransformerConfig.class);
+                FileUtils.writeStringToFile(new File(file, "transformersVanilla.cfg"), jsonString);
             } catch (IOException e)
             {
                 e.printStackTrace();
             }
-            if (plantTransformerConfig == null)
-                plantTransformerConfig = makeDefaultPlantConfig();
-
-            INSTANCE = plantTransformerConfig;
         }
+
+        List<PlantConfigPart> parts = new ArrayList<PlantConfigPart>();
+        for (PlantTransformerConfig loader : loaders)
+        {
+            parts.addAll(Arrays.asList(loader.plants));
+        }
+        INSTANCE = new PlantTransformerConfig(parts.toArray(new PlantConfigPart[parts.size()]));
     }
 
-    private static PlantTransformerConfig makeDefaultPlantConfig()
+    private static PlantTransformerConfig readFile(File file)
+    {
+        try
+        {
+            String jsonString = FileUtils.readFileToString(file);
+            return gson.fromJson(jsonString, PlantTransformerConfig.class);
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static PlantTransformerConfig makeDefaultConfig()
     {
         List<PlantConfigPart> list = new ArrayList<PlantConfigPart>();
         list.add(new PlantConfigPart("net.minecraft.block.BlockGrass", true));
