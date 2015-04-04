@@ -57,7 +57,7 @@ public class Settings
     @ConfigIntValue(defaultValue = 200, comment = "Ticks between updates in biosystems, higher is better for performance, but will make changes show up later")
     public static int TICKS_PER_BIOSYSTEM_UPDATE;
 
-    @ConfigIntValue(defaultValue = 24000, comment = "The amount of ticks for full change is nutrient values")
+    @ConfigIntValue(defaultValue = 24000, comment = "The amount of ticks for full change in nutrient values")
     public static int BIOSYSTEM_NUTRIENT_CHANGE_TICKS;
 
     //24000 ticks per MC day. One day for 1.0 change.
@@ -75,7 +75,7 @@ public class Settings
     public static float POTASSIUM_CHANGE_RATE;
     public static float NITROGEN_CHANGE_RATE;
 
-    @ConfigFloatValue(defaultValue = 10F, comment = "The speed at which bacteria spread compared to the average change of nutrients")
+    @ConfigFloatValue(defaultValue = 100F, comment = "The speed at which bacteria spread compared to the average change of nutrients")
     public static float BACTERIA_CHANGE_AMOUNT;
     
     public static float BACTERIA_CHANGE_RATE;
@@ -86,9 +86,11 @@ public class Settings
     //168000 ticks per MC week. One week for 1.0 change in spread.
     public static float BIOSYSTEM_SPREAD_RATE;
 
-    // Bacteria will start to die when there's this much biomass compared to what they can consume at max
     @ConfigFloatValue(defaultValue = 0.75F, comment = "Bacteria will start to die when there's this much biomass compared to what they can consume at max")
     public static float BACTERIA_DEATH;
+
+    @ConfigFloatValue(defaultValue = 1.2F, comment = "Bacteria will start to stop growing when then they are this rate compared to the biomass in the chunk.")
+    public static float BACTERIA_GROWTH_MAX;
 
     @ConfigFloatValue(defaultValue = 0.6F, comment = "The amount Phosphorus in Bonemeal")
     public static float BONEMEAL_PHOSPHORUS;
@@ -110,10 +112,17 @@ public class Settings
     {
         BIOSYSTEM_CHANGE_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_CHANGE_TICKS;
 
+        System.out.println(BIOSYSTEM_CHANGE_RATE);
+
         float normalRate = (float) Math.cbrt(1.0 / (BIOMASS_PHOSPHORUS_RATE * BIOMASS_POTASSIUM_RATE * BIOMASS_NITROGEN_RATE));
         PHOSPHORUS_CHANGE_RATE = BIOMASS_PHOSPHORUS_RATE * normalRate * BIOSYSTEM_CHANGE_RATE;
         POTASSIUM_CHANGE_RATE = BIOMASS_POTASSIUM_RATE * normalRate * BIOSYSTEM_CHANGE_RATE;
         NITROGEN_CHANGE_RATE = BIOMASS_NITROGEN_RATE * normalRate * BIOSYSTEM_CHANGE_RATE;
+
+
+        System.out.println(PHOSPHORUS_CHANGE_RATE);
+        System.out.println(POTASSIUM_CHANGE_RATE);
+        System.out.println(NITROGEN_CHANGE_RATE);
 
         BACTERIA_CHANGE_RATE = BACTERIA_CHANGE_AMOUNT*BIOSYSTEM_CHANGE_RATE;
         BIOSYSTEM_SPREAD_RATE = (float) TICKS_PER_BIOSYSTEM_UPDATE / BIOSYSTEM_NUTRIENT_SPREAD_TICKS;

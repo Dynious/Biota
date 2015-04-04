@@ -6,7 +6,6 @@ import com.dynious.biota.api.DefaultPlantSpreader;
 import com.dynious.biota.api.IBiotaAPI;
 import com.dynious.biota.api.IPlantSpreader;
 import com.dynious.biota.biosystem.spreader.TallGrassSpreader;
-import com.dynious.biota.block.ModBlocks;
 import com.dynious.biota.lib.Reference;
 import com.dynious.biota.lib.Settings;
 import com.google.gson.Gson;
@@ -32,7 +31,7 @@ public class PlantConfig
     public static void init()
     {
         Loader.load();
-        IBiotaAPI.API.registerDeadPlant(ModBlocks.grass, -1, Blocks.dirt, -1);
+        IBiotaAPI.API.registerDeadPlant(Blocks.grass, -1, Blocks.dirt, -1);
         IBiotaAPI.API.registerDeadPlant(Blocks.tallgrass, -1, Blocks.deadbush, -1);
 
         IBiotaAPI.API.registerPlantSpreader(Blocks.tallgrass, new TallGrassSpreader());
@@ -168,7 +167,7 @@ public class PlantConfig
                 {
                     if (foundFile.getName().equals("plantsVanilla.cfg"))
                         foundVanilla = true;
-                    Loader loader = readFile(file);
+                    Loader loader = readFile(foundFile);
                     if (loader != null)
                         loaders.add(loader);
                 }

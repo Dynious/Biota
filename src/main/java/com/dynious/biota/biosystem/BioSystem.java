@@ -195,8 +195,8 @@ public class BioSystem
 
     public void setStableBacteriaValues()
     {
-        decomposingBacteria = biomass + (RANDOM.nextFloat())*(biomass/20);
-        nitrifyingBacteria = biomass + (RANDOM.nextFloat())*(biomass/20);
+        decomposingBacteria = biomass + RANDOM.nextFloat()*(Settings.BACTERIA_GROWTH_MAX*biomass - biomass);
+        nitrifyingBacteria = biomass + RANDOM.nextFloat()*(Settings.BACTERIA_GROWTH_MAX*biomass - biomass);
     }
 
     public void setStableBacteriaValuesNearChunk()
@@ -245,7 +245,7 @@ public class BioSystem
                 //TODO: BALANCE! BIOMASS INCREASE HAS A VERY DRAMATIC EFFECT, NUTRIENT USAGE TOO HIGH.
                 //Bacteria calculations
                 float biomassBacteriaRate = biomass / decomposingBacteria;
-                if (biomassBacteriaRate > 1)
+                if (biomassBacteriaRate > Settings.BACTERIA_GROWTH_MAX)
                 {
                     decomposingBacteria += decomposingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
@@ -255,7 +255,7 @@ public class BioSystem
                 }
 
                 float nirtifyingBacteriaRate = (Math.min(biomass, decomposingBacteria) + nitrogenFixation) / nitrifyingBacteria;
-                if (nirtifyingBacteriaRate > 1)
+                if (nirtifyingBacteriaRate > Settings.BACTERIA_GROWTH_MAX)
                 {
                     nitrifyingBacteria += nitrifyingBacteria * Settings.BACTERIA_CHANGE_RATE;
                 }
@@ -278,11 +278,6 @@ public class BioSystem
                 nitrogen += Math.min(Math.min(biomass, decomposingBacteria) + nitrogenFixation, nitrifyingBacteria) * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen -= biomass * Settings.NITROGEN_CHANGE_RATE;
                 nitrogen = Math.max(0, nitrogen);
-
-                if (chunk.xPosition == 0 && chunk.zPosition == 0)
-                {
-                    System.out.println(String.format("POST: Biomass: %f, Nitrogen Fixation: %f, Phosphorus: %f, Potassium: %f, Nitrogen %f, Decomposing Bacteria: %f, Nirtifying Bacteria %f", this.getBiomass(), this.getNitrogenFixation(), this.getPhosphorus(), this.getPotassium(), this.getNitrogen(), this.getDecomposingBacteria(), this.getNitrifyingBacteria()));
-                }
 
                 //Spread BioSystem stuff to nearby chunks
                 spreadToChunk(chunk, chunk.xPosition - 1, chunk.zPosition);

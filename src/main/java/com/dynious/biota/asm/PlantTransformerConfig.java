@@ -36,7 +36,7 @@ public class PlantTransformerConfig
             {
                 if (foundFile.getName().equals("transformersVanilla.cfg"))
                     foundVanilla = true;
-                PlantTransformerConfig loader = readFile(file);
+                PlantTransformerConfig loader = readFile(foundFile);
                 if (loader != null)
                     loaders.add(loader);
             }

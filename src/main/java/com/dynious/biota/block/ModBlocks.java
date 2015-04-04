@@ -5,8 +5,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 
 public class ModBlocks
 {
-    public static BlockNewGrass grass = new BlockNewGrass();
-
     public static BlockNitrogenFixingPlant[] plants = new BlockNitrogenFixingPlant[6];
 
     public static void init()

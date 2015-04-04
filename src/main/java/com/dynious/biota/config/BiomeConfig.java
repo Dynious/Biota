@@ -124,7 +124,7 @@ public class BiomeConfig
                 {
                     if (foundFile.getName().equals("biomesVanilla.cfg"))
                         foundVanilla = true;
-                    Loader loader = readFile(file);
+                    Loader loader = readFile(foundFile);
                     if (loader != null)
                         loaders.add(loader);
                 }
